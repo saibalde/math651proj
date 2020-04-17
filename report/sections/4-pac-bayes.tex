@@ -142,7 +142,7 @@ We now present one particular form of the PAC-Bayes bound presented in
     \label{eq:catoni-bound-unit}
     \Ev_{h \sim \rho}[R_\CD^L(h)] \leq \frac{1}{1 - e^{-\beta}} \left[1 -
     \exp\left( - \beta - \beta \Ev_{h \sim \rho}[\hat{R}_S^L(h)] - \frac{1}{n}
-    \left[\KL{\rho}{\pi} + \frac{1}{\delta}\right]\right)\right]
+    \left[\KL{\rho}{\pi} + \ln \frac{1}{\delta}\right]\right)\right]
   \end{equation}
   for any distribution $\rho$ on $\CH$. \footnote{The bound cited in
   \cite{germain2016pac} and attributed to \cite{catoni2007pac} does not have the
@@ -220,7 +220,7 @@ Theorem~\ref{thm:catoni} for $L'$ to obtain:
   \label{eq:catoni-bound}
   \Ev_{h \sim \rho}[R_\CD^L(h)] \leq a + \frac{b - a}{1 - e^{a - b}} \left[1 -
   \exp\left(2 a - b - \Ev_{h \sim \rho}[\hat{R}_S^L(h)] - \frac{1}{n}
-  \left[\KL{\rho}{\pi} + \frac{1}{\delta}\right]\right)\right]
+  \left[\KL{\rho}{\pi} + \ln \frac{1}{\delta}\right]\right)\right]
 \end{equation}
 Optimizing this PAC-Bayes bound \eqref{eq:catoni-bound} over $\rho$ to find
 the optimal posterior distribution would lead to a simple learning algorithm.
