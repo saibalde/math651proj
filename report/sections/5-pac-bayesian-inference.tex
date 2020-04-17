@@ -1,0 +1,133 @@
+\section{PAC-Bayes and Bayesian Inference}
+
+Theorem~\ref{thm:catoni}, and in particular Corollary~\ref{cor:gibbs} provide
+interesting parallels between the structure of an optimal posterior and the
+posteriors from Bayes update rules. In this section, we explore this link in
+more detail.
+
+\subsection{The Case of Bounded Log Likelihood}
+
+Let us assume that the hypothesis class $\CH$ is in fact a set of models mapping
+features in $\CX$ to labels in $\CY$, and these models are parametrized by
+$\theta \in \Theta$, i.e.\ $\CH = \{h_\theta : \theta \in \Theta\}$. Let us
+impose a prior $\pi(\theta)$ on this parameter space---this is equivalent to
+imposing a prior on the hypothesis class directly. The likelihood of observing
+observing sample $S = \{(x_1, y_1), \ldots, (x_n, y_n)\}$ is given by
+\begin{equation}
+  p(S \mid \theta) = \prod_{i = 1}^n p(x_i, y_i \mid \theta)
+\end{equation}
+Now, let us use the negative log-likelihood as our loss function:
+\begin{equation}
+  L_\text{nll}(h_\theta, x, y) = - \log p(x, y \mid \theta)
+\end{equation}
+Then the empirical risk is given by
+\begin{equation}
+  \hat{R}_S^{L_\text{nll}}(\theta) := \hat{R}_S^{L_\text{nll}}(h_\theta) =
+  \frac{1}{n} \sum_{i = 1}^n L_\text{nll}(h_\theta, x_i, y_i) = -\frac{1}{n}
+  \sum_{i = 1}^n \log p(x_i, y_i \mid \theta) = - \frac{1}{n} \log p(S \mid
+  \theta)
+\end{equation}
+or conversely, the likelihood is given by
+\begin{equation}
+  p(S \mid \theta) = \exp(-n \hat{R}_S^{L_\text{nll}}(\theta))
+\end{equation}
+We can now compute the posterior using Bayes rule:
+\begin{equation}
+  p(\theta \mid S) = \frac{\pi(\theta) p(S \mid \theta)}{p(S)} =
+  \frac{\pi(\theta) \exp(-n \hat{R}_S^{L_\text{nll}}(\theta))}{p(S)}
+\end{equation}
+This corresponds exactly to the optimal Gibbs posterior $\rho^*$, provided that
+the negative log-likelihood loss is bounded:
+\begin{equation}
+  \pi(h_\theta) = \pi(\theta), \quad Z_S = p(S), \quad \rho^*(h_\theta) =
+  p(\theta \mid S)
+\end{equation}
+Additionally, we obtain
+\begin{equation}
+  \begin{split}
+    n \Ev_{\theta \sim \rho^*} \hat{R}_S^{L_\text{nll}}(\theta) +
+    \KL{\rho^*}{\pi}
+    &= \int_\Theta \rho^*(\theta) \left[n \hat{R}_S^{L_\text{nll}}(\theta) + \ln
+    \frac{\rho^*(\theta)}{\pi(\theta)}\right] d\theta \\
+    &= \int_\Theta \rho^*(\theta) \left[n \hat{R}_S^{L_\text{nll}}(\theta) + \ln
+    \frac{\frac{1}{Z_S} \pi(\theta) \exp(-n
+    \hat{R}_S^{L_\text{nll}}(\theta))}{\pi(\theta)}\right] d\theta \\
+    &= \int_\Theta \rho^*(\theta) \left[\ln \frac{1}{Z_S}\right] d\theta \\
+    &= -\ln Z_S
+  \end{split}
+\end{equation}
+Clearly, minimizing the PAC-Bayes bound is equivalent to maximizing the evidence
+$Z_S = p(S)$ of the sample. This allows us to reformulate
+Theorem~\ref{thm:catoni} in as follows:
+
+\begin{corollary}
+  \label{cor:catoni}
+  Given a data distribution $\CD$ over $\CX \times \CY$, a parameter set
+  $\Theta$, a prior $\pi(\theta)$ over this parameter set and a real number
+  $\delta \in (0, 1)$, if the negative log likelihood $L_\text{nll}(h_\theta, x,
+  y) = -\ln p(x, y \mid \theta)$ lies in $[a, b]$, then we have
+  \begin{equation}
+    \Ev_{\theta \sim \rho^*}[R_\CD^{L_\text{nll}}(\theta)] \leq a + \frac{b -
+    a}{1 - e^{a - b}}\left[1 - e^{2 a - b} \sqrt[n]{p(S) \delta}\right]
+  \end{equation}
+  with probability at least $1 - \delta$ over i.i.d.\ sample $S \sim \CD^n$.
+\end{corollary}
+
+\subsection{Handling Unbounded Log Likelihoods}
+
+We can artificially ensure that the negative log-likelihood is bounded, with
+range $[a, b]$, by assigning zero prior probability to those parameter values
+that violate this condition. Naturally, this ``restrict support'' approach is
+severely limiting. We therefore aim to develop analogs of
+Theorem~\ref{thm:catoni} for unbounded loss functions.
+
+In \cite{alquier2016properties}, the authors present a general PAC-Bayes bound
+that does not make any assumptions on the boundedness of the loss function:
+\begin{theorem}
+  Given a distribution $\CD$ over $\CX \times \CY$, a hypothesis set $\CH$, a
+  loss function $L : \CH \times \CX \times \CY \to \RR$, a prior distribution
+  $\pi$ over $\CH$ and real numbers $\delta \in (0, 1)$ and $\lambda > 0$, the
+  following holds with probability at least $1 - \delta$ over $S \sim \CD^n$
+  \begin{equation}
+    \label{eq:alquier-bound}
+    \Ev_{h \sim \rho}[R_\CD^L(h)] \leq \Ev_{h \sim \rho}[\hat{R}_S^L(h)] +
+    \frac{1}{\lambda}\left[\KL{\rho}{\pi} + \ln \frac{1}{\delta} +
+    I_\lambda^L(\pi, \CD, n)\right]
+  \end{equation}
+  with
+  \begin{equation}
+    I_\lambda^L(\pi, \CD, n) = \ln\left(\Ev_{h \sim \pi}\left[\Ev_{S' \sim
+    \CD^n}[\exp\{\lambda(R_\CD^L(h) - \hat{R}_S^L(h))\}]\right]\right)
+  \end{equation}
+  for all distributions $\rho$ on $\CH$.
+\end{theorem}
+
+\begin{proof}
+  This statement can be recovered from Theorem~\ref{thm:pac-bayes} by using
+  \begin{equation}
+    \Delta_\lambda(p, q) = \frac{\lambda}{n} (p - q)
+  \end{equation}
+  as a convex function on $\RR^2$ instead of $[0, 1]^2$.
+\end{proof}
+
+We now aim to bound the $I_\lambda^L(\pi, \CD, n)$ term corresponding to
+different loss functions using concentration inequalities, e.g.\:
+
+\begin{lemma}[Hoeffding's Inequality]
+  Let $X_1, \ldots, X_n$ be independent random variables with $X_i$ bounded in
+  $[a_i, b_i]$. Then
+  \begin{equation}
+    \Pr\left(| \bar{X} - \Ev[\bar{X}] | \geq t\right) \leq 2 \exp\left(- \frac{2
+    n^2 t^2}{\sum_{i = 1}^n (b_i - a_i)^2}\right)
+  \end{equation}
+  given the empirical mean
+  \begin{equation}
+    \bar{X} = \frac{1}{n}(X_1 + \cdots + X_n)
+  \end{equation}
+\end{lemma}
+
+\subsubsection{Classification with Bounded Loss}
+
+Let us consider a classification task with feature class $\CX$, label class $\CY
+= \{0, 1\}$ and hypothesis class $\CH$, with bounded loss function $L : \CH
+\times \CX \times \CY \to [a, b]$
