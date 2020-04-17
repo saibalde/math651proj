@@ -86,11 +86,11 @@ derived from three basic inequalities:
     \label{eq:pac-bayes-bound}
     \Delta\left(\Ev_{h \sim \rho}[R_\CD^L(h)], \Ev_{h \sim
     \rho}[\hat{R}_S^L(h)]\right) \leq \frac{1}{n} \left[\KL{\rho}{\pi} +
-    \ln \frac{1}{\delta} + I_\Delta^L(\CD, n)\right]
+    \ln \frac{1}{\delta} + I_\Delta^L(\pi, \CD, n)\right]
   \end{equation}
   with
   \begin{equation}
-    I_\Delta^L(\CD, n) := \ln\left(\Ev_{h \sim \pi}\left[\Ev_{S' \sim
+    I_\Delta^L(\pi, \CD, n) := \ln\left(\Ev_{h \sim \pi}\left[\Ev_{S' \sim
     \CD^n}[\exp\{n \Delta(R_\CD^L(h), R_{S'}^L(h))\}]\right]\right)
   \end{equation}
   for any distribution $\rho$ on $\CH$.
@@ -159,7 +159,7 @@ We now present one particular form of the PAC-Bayes bound presented in
   \begin{equation}
     \Delta_\beta(p, q) \leq \beta \quad \text{for all} \quad 0 \leq p, q \leq 1  
   \end{equation}
-  We now compute an estimate for $I_\Delta^L(\CD, n) = \ln(\Ev_{h \sim
+  We now compute an estimate for $I_\Delta^L(\pi, \CD, n) = \ln(\Ev_{h \sim
   \pi}[\Ev_{S' \sim \CD^n}[\exp\{n \Delta(R_\CD^L(h), R_{S'}^L(h))\}]])$:
   \begin{equation}
     \begin{split}
@@ -205,7 +205,7 @@ We now present one particular form of the PAC-Bayes bound presented in
   \end{equation}
   Combining all these inequalities, we get
   \begin{equation}
-    I_\Delta^L(\CD, n) \leq \beta n
+    I_\Delta^L(\pi, \CD, n) \leq \beta n
   \end{equation}
   Using this, and plugging in the expression for $\Delta$ in
   \eqref{eq:pac-bayes-bound}, we recover Catoni's bound
