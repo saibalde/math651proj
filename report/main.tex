@@ -2,12 +2,41 @@
 \usepackage[utf8]{inputenc}
 
 \usepackage{fullpage}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{color}
+
+\DeclareMathOperator*{\Argmax}{argmax}
+\DeclareMathOperator*{\Argmin}{argmin}
+\DeclareMathOperator*{\Ev}{\mathbb{E}}
+\DeclareMathOperator*{\Var}{\mathbb{V}ar}
+
+\newcommand{\CD}{\mathcal{D}}
+\newcommand{\CH}{\mathcal{H}}
+\newcommand{\CX}{\mathcal{X}}
+\newcommand{\CY}{\mathcal{Y}}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+
+\newcommand{\KL}[2]{\text{KL}(#1 \parallel #2)}
+\newcommand{\NormalDist}{\mathcal{N}}
+\newcommand{\BetaDist}{\text{Beta}}
+
+\renewcommand{\Vec}[1]{\bm{#1}}
+\newcommand{\Mat}[1]{\mathbf{#1}}
+
+\newcommand{\Abs}[1]{\lvert#1\rvert}
+\newcommand{\Norm}[1]{\lVert#1\rVert}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
 \theoremstyle{definition}
+\newtheorem{remark}[theorem]{Remark}
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{problem}[theorem]{Problem}
 \newtheorem{example}[theorem]{Example}
@@ -19,32 +48,10 @@
 
 \maketitle
 
-\section{Introduction}
+\input{sections/2-pac-learning.tex}
 
-\begin{itemize}
-  \item What's the problem
-  \item Why is it important
-  \item What makes it hard, challenging
-  \item What's your solution
-\end{itemize}
-
-\section{Problem}
-
-Discuss the background, set-up of the problem and then discuss your solution,
-proofs?, etc.  Is there an algorithm? If so, put it here.
-
-\section{Results}
-
-This is the right place for numerical experiments if you have them.  Discuss why
-they are meaningful, what is important about the experimental set-up for
-engineering purposes, etc.
-
-\section{Conclusion}
-
-What conclusions do you draw from your results?  What's missing from your
-approach?  What are the next steps?
 
 \bibliography{references}
-\bibliographystyle{plain}
+\bibliographystyle{unsrt}
 
 \end{document}
