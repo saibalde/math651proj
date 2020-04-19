@@ -1,5 +1,5 @@
 \documentclass[aspectratio=169]{beamer}
-\usetheme{Frankfurt}
+\usetheme{Madrid}
 
 \setbeamertemplate{navigation symbols}{}
 
@@ -78,48 +78,42 @@
 \end{frame}
 
 \begin{frame}{Outline}
-  \tableofcontents
+  \begin{enumerate}
+    \item
+      Introduction
+    \item
+      Bayesian Inference
+    \item
+      PAC-Bayes Theory
+    \item
+      PAC Bayesian Inference
+    \item
+      Conclusion
+  \end{enumerate}
 \end{frame}
 
 \section{Introduction}
 
-\begin{frame}{Problem Description}
+\begin{frame}{Motivation}
   \begin{itemize}
   	\item
       PAC theory offers uniform guarantees on learnability
       \begin{itemize}
         \item
-          Limited by VC dimension of a hypothesis class
+          Applicable primarily to classification problems
+        \item
+          Needs finite VC dimension hypothesis classes
       \end{itemize}
   	\item
       Bayesian inference provides unified framework for data-driven learning
       \begin{itemize}
         \item
-          No guarantees on generalization error
+          Works very well in practice
+        \item
+          Does not provide uniform guarantees on generalization error
       \end{itemize}
   	\item
       How do we unify these two learning frameworks?
-      \begin{itemize}
-        \item
-          In particular, how do we provide uniform learning guarantees for
-          Bayesian inference?
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Motivation}
-  \begin{itemize}
-    \item
-      Bayesian inference algorithms has been developed for many different
-      problems
-    \item
-      They work very well in practice
-      \begin{itemize}
-        \item
-          More data $\implies$ Better parameter estimation
-      \end{itemize}
-    \item
-      How does the error reduce as number of data points is increased?
   \end{itemize}
 \end{frame}
 
@@ -164,87 +158,57 @@
 \begin{frame}{Bayesian Linear Regression}
   \begin{itemize}
     \item
-      Given points $S = \{(x_i, y_i) : 1 \leq i \leq n\}$ find function $f : [0,
-      1] \to \RR$ to fit data
+      Goal: Given points $S = \{(x_i, y_i) : 1 \leq i \leq n\}$, find function
+      $f : [0, 1] \to \RR$ to fit data
     \item
       Model
       \begin{equation*}
-        h_{\bm{\theta}}(x) = \sum_{i = 1}^m \theta_i \phi_i(x) + \eta, \quad
-        \eta \sim \mathcal{N}(0, \sigma_\eta^2), \quad \theta_i \in \RR, \quad
-        \phi_i(x) = L_{i - 1}(2 x - 1)
+        h_{\bm{\theta}}(x) = \sum_{i = 1}^m \theta_i \phi_i(x) + \eta =:
+        \bm{\phi}(x)^\top \bm{\theta} + \eta, \quad \eta \sim \mathcal{N}(0,
+        \sigma_\eta^2)
       \end{equation*}
-      where $L_k$ is the $k$-th degree Legendre polynomial on $[-1, 1]$, $L_k(1)
-      = 1$
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Bayesian Linear Regression}
-  \begin{itemize}
     \item
-      Likelihood model for i.i.d.\ observations
-      \begin{equation*}
-        p(S \mid \bm{\theta}) = \prod_{i = 1}^n p(x_i, y_i \mid \bm{\theta}) 
-        \propto \mathcal{N}(\bm{y} \mid \Phi(\bm{x})^\top \bm{\theta},
-        \sigma_\eta^2 \mathbf{I}_n)
-      \end{equation*}
-      where $\bm{x} = (x_1, \ldots, x_n)$, $\bm{y} = (y_1, \ldots, y_n)$ and
+      Bayesian inference:
+      \begin{itemize}
+        \item
+          Prior $p(\bm{\theta}) = \mathcal{N}(\bm{\theta} \mid \bm{0},
+          \sigma_\theta^2
+          \mathbf{I}_m)$
+        \item
+          Likelihood $p(S \mid \bm{\theta}) = p(\bm{x}) p(\bm{y} \mid \bm{x},
+          \bm{\theta}) = p(\bm{x}) \mathcal{N}(\bm{y} \mid
+          \mathbf{\Phi}(\bm{x})^\top \bm{\theta}, \sigma_\eta^2 \mathbf{I}_n)$
+        \item
+          Posterior $p(\bm{\theta} \mid S) = \mathcal{N}(\bm{\theta} \mid
+          \bm{\mu}, \mathbf{\Sigma})$
+      \end{itemize}
+      Here
       \begin{equation*}
         \mathbf{\Phi}(\bm{x}) =
         \begin{bmatrix}
           \bm{\phi}(x_1) & \cdots & \bm{\phi}(x_n)
         \end{bmatrix},
-        \quad \bm{\phi}(x) =
-        \begin{bmatrix}
-          \phi_1(x) \\
-          \vdots \\
-          \phi_n(x)
-        \end{bmatrix}
-      \end{equation*}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Bayesian Linear Regression}
-  \begin{itemize}
-    \item
-      Prior distribution $\bm{\theta} \sim \mathcal{N}(\bm{0}, \sigma_\theta^2
-      \mathbf{I}_m)$
-    \item
-      We compute the posterior
-      \begin{equation*}
-        \begin{split}
-          -\log p(\bm{\theta} \mid S)
-          &= -\log p(\bm{\theta}) - \log p(S \mid \bm{\theta}) + \text{const.}
-          \\
-          &= \frac{1}{2 \sigma_\theta^2} \| \bm{\theta} \|^2 + \frac{1}{2
-          \sigma_\eta^2} \| \bm{y} - \mathbf{\Phi}(\bm{x})^\top \bm{\theta} \|^2
-          + \text{const.}
-          \\
-          &= \frac{1}{2} \bm{\theta}^\top
-          \underbrace{\left(\frac{1}{\sigma_\theta^2} \mathbf{I}_m +
-          \frac{1}{\sigma_\eta^2} \mathbf{\Phi}(\bm{x})
-          \mathbf{\Phi}(\bm{x})^\top\right)}_{\mathbf{\Sigma}^{-1}} \bm{\theta}
-          - \bm{\theta}^\top \underbrace{\left(\frac{1}{\sigma_\eta^2}
-          \mathbf{\Phi}(\bm{x}) \bm{y}\right)}_{\mathbf{\Sigma}^{-1} \bm{\mu}} +
-          \text{const.}
-          \\
-          &= -\ln \mathcal{N}(\bm{\theta} \mid \bm{\mu}, \mathbf{\Sigma})
-        \end{split}
+        \quad \mathbf{\Sigma}^{-1} = \frac{1}{\sigma_\theta^2} \mathbf{I}_m +
+        \frac{1}{\sigma_\eta^2} \mathbf{\Phi}(\bm{x})
+        \mathbf{\Phi}(\bm{x})^\top,
+        \quad \bm{\mu} = \frac{1}{\sigma_\eta^2} \mathbf{\Sigma}
+        \mathbf{\Phi}(\bm{x}) \bm{y}
       \end{equation*}
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Bayesian Linear Regression}
   \centering
-  \includegraphics[width=\textwidth]{../figures/wide-prior.pdf}
+  \includegraphics[width=\textwidth]{../figures/num-sample-10.pdf}
 
-  Prior $\bm{\theta} \sim \mathcal{N}(\bm{0}, 16 \mathbf{I}_6)$
+  Bayesian inference with 10 samples
 \end{frame}
 
 \begin{frame}{Bayesian Linear Regression}
   \centering
-  \includegraphics[width=\textwidth]{../figures/thin-prior.pdf}
+  \includegraphics[width=\textwidth]{../figures/num-sample-50.pdf}
 
-  Prior $\bm{\theta} \sim \mathcal{N}(\bm{0}, \frac{1}{16} \mathbf{I}_6)$
+  Bayesian inference with 100 samples
 \end{frame}
 
 \section{PAC-Bayes Theory}
@@ -311,52 +275,6 @@
     \end{equation*}
     for any distribution $\rho$ on $\CH$
   \end{theorem}
-\end{frame}
-
-\begin{frame}{Proof Elements}
-  \begin{lemma}[Markov's Inequality]
-    \begin{equation*}
-      \text{R.V. } X \geq 0, a > 0, \delta \in (0, 1) \implies \Pr{X \geq a}
-      \leq \frac{\Ev{X}}{a} \text{ and } \Pr{X \geq \frac{\Ev{X}}{\delta}} \leq
-      \delta
-    \end{equation*}
-  \end{lemma}
-  \begin{lemma}[Jensen's Inequality]
-    \begin{equation*}
-      \text{R.V. } X, \text{ convex function } \phi \implies \phi(\Ev{X})
-      \leq \Ev{\phi(X)}
-    \end{equation*}
-  \end{lemma}
-  \begin{lemma}[Change of Measure Inequality]
-    \begin{equation*}
-      \text{R.V. } X, \text{ measurable function } \phi \implies \Ev[X \sim
-      Q]{\phi(X)} \leq \KL{Q}{P} + \ln \Ev[X \sim P]{\exp(\phi(X))}
-    \end{equation*}
-  \end{lemma}
-\end{frame}
-
-\begin{frame}{Proof}
-  \small
-  \begin{equation*}
-    \begin{split}
-      &n\Delta\left(\Ev[h \sim \rho]{R_\CD^L(h)]}, \Ev[h \sim
-      \pi]{\hat{R}_S^L(h)}\right)
-      \\
-      \text{\small (Jensen)}\qquad \leq& \Ev[h \sim \rho]{n\Delta(R_\CD^L(h),
-      \hat{R}_S^L(h))}
-      \\
-      \text{\small (Measure Change)}\qquad \leq& \KL{\rho}{\pi} + \ln\left(\Ev[h
-      \sim \pi]{\exp(n \Delta(R_\CD^L(h), \hat{R}_S^L(h)))}\right)
-      \\
-      \text{\small (Markov)}\!\!\!\qquad \underset{1 - \delta}{\leq}&
-      \KL{\rho}{\pi} + \ln\left(\frac{1}{\delta} \Ev[S' \sim \CD^n]{\Ev[h \sim
-      \pi]{\exp(n \Delta(R_\CD^L(h), \hat{R}_{S'}^L(h)))}}\right)
-      \\
-      =& \KL{\rho}{\pi} + \ln \frac{1}{\delta} + \underbrace{\ln\left(\Ev[h \sim
-      \pi]{\Ev[S' \sim \CD^n]{\exp(n \Delta(R_\CD^L(h),
-      \hat{R}_{S'}^L(h)))}}\right)}_{\psi_\Delta^L(\pi, \CD, n)}
-    \end{split}
-  \end{equation*}
 \end{frame}
 
 \begin{frame}{Catoni's PAC-Bayes Bound}
@@ -478,10 +396,11 @@
   \end{corollary}
 \end{frame}
 
-\begin{frame}{Bayesian Linear Regression}
+\begin{frame}{Bayesian Linear Regression, Revisited}
   \begin{itemize}
     \item
-      Squared loss function $L(h, x, y) = (h(x) - y)^2$
+      Squared loss function $L(h_{\bm{\theta}}, x, y) = (h_{\bm{\theta}}(x) -
+      y)^2$
     \item
       Hypothesis class elements $h_{\bm{\theta}}(x) = \bm{\phi}(x)^\top
       \bm{\theta}$ for $\bm{\theta} \in \RR^m$
@@ -489,34 +408,46 @@
       $\pi(\bm{\theta}) = \mathcal{N}(\bm{0}, \sigma_\theta^2
       \mathbf{I}_m)$
     \item
-      $\CD(x, y) = \CD_X(x) \CD_{Y \mid X}(y \mid x)$ with
-      $\CD_{Y \mid X}(y \mid x) = \mathcal{N}(h_{\bm{\theta}^*}(x),
+      $\CD(x, y) = \CD_x(x) \CD_{y \mid x}(y \mid x)$ with
+      $\CD_{y \mid x}(y \mid x) = \mathcal{N}(h_{\bm{\theta}^*}(x),
       \sigma_\eta^2)$
     \item
       Loss function sub-gamma$(s, c)$ w.r.t.\ $\pi(\bm{\theta})$ and $\CD(x, y)$
       when
       \begin{equation*}
-        c = 2 \sigma_{\bm{\phi},x}^2 \sigma_\theta^2, \quad s^2 = 2
-        [\sigma_{\bm{\phi},x}^2 (\sigma_\theta^2 m + \| \bm{\theta}^* \|^2) +
+        c = 2 \kappa_{\bm{\phi},x}^2 \sigma_\theta^2, \quad s^2 = 2
+        [\kappa_{\bm{\phi},x}^2 (\sigma_\theta^2 m + \| \bm{\theta}^* \|^2) +
         \sigma_\eta^2 (1 - c)] 
       \end{equation*}
       where
       \begin{equation*}
-        \sigma_{\bm{\phi},x}^2 = \| \Var[X \sim \CD_X]{\bm{\phi}(X)} \|_2 + \|
-        \Ev[X \sim \CD_X]{\bm{\phi}(X)} \|_\infty
+        \kappa_{\bm{\phi},x}^2 = \left\| \Ev[x \sim \CD_x]{\bm{\phi}(x)
+        \bm{\phi}(x)^\top} \right\|_2
       \end{equation*}
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Bayesian Linear Regression}
+\begin{frame}{Bayesian Linear Regression, Revisited}
   \begin{itemize}
+    \item
+      Using Legendre polynomials and uniform prior on $x$, we can compute
+      $\kappa_{\bm{\phi},x}^2 \leq C \log m$ Then
+      \begin{equation*}
+        c \leq 2 C \sigma_\theta^2 \log m, \quad s^2 \leq 2 [C (\sigma_\theta^2
+        m + \| \bm{\theta}^* \|^2) \log m + \sigma_\eta^2 (1 - c)]
+      \end{equation*}
+    \item
+      The constant term in the bound is $\frac{1}{2(1 - c)} s^2$ and we have the
+      constraint $c < 1$
+    \item
+      As complexity of hypothesis class $m$ increases, we need narrow priors
     \item
       The bound degrades as
       \begin{itemize}
         \item
-          Noise variance increases
+          Noise variance $\sigma_\eta$ increases
         \item
-          Complexity of hypothesis class (degree of the polynomial) increases
+          Complexity of hypothesis class $m$ increases
         \item
           True parameter $\bm{\theta}^*$ moves away from origin
       \end{itemize}
@@ -549,13 +480,88 @@
   \end{itemize}
 \end{frame}
 
-\section*{References}
+\section{References}
 
 \begin{frame}[allowframebreaks]
   \frametitle{References}
   \nocite{*}
   \bibliography{references}
   \bibliographystyle{amsalpha}
+\end{frame}
+
+\section{Backup Slides}
+
+\begin{frame}{Bayesian Linear Regression: Posterior Computation}
+  \begin{itemize}
+    \item
+      We compute the posterior
+      \begin{equation*}
+        \begin{split}
+          -\log p(\bm{\theta} \mid S)
+          &= -\log p(\bm{\theta}) - \log p(S \mid \bm{\theta}) + \text{const.}
+          \\
+          &= \frac{1}{2 \sigma_\theta^2} \| \bm{\theta} \|^2 + \frac{1}{2
+          \sigma_\eta^2} \| \bm{y} - \mathbf{\Phi}(\bm{x})^\top \bm{\theta} \|^2
+          + \text{const.}
+          \\
+          &= \frac{1}{2} \bm{\theta}^\top
+          \underbrace{\left(\frac{1}{\sigma_\theta^2} \mathbf{I}_m +
+          \frac{1}{\sigma_\eta^2} \mathbf{\Phi}(\bm{x})
+          \mathbf{\Phi}(\bm{x})^\top\right)}_{\mathbf{\Sigma}^{-1}} \bm{\theta}
+          - \bm{\theta}^\top \underbrace{\left(\frac{1}{\sigma_\eta^2}
+          \mathbf{\Phi}(\bm{x}) \bm{y}\right)}_{\mathbf{\Sigma}^{-1} \bm{\mu}} +
+          \text{const.}
+          \\
+          &= -\ln \mathcal{N}(\bm{\theta} \mid \bm{\mu}, \mathbf{\Sigma})
+        \end{split}
+      \end{equation*}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{General PAC-Bayes Bound: Proof Elements}
+  \begin{lemma}[Markov's Inequality]
+    \begin{equation*}
+      \text{R.V. } X \geq 0, a > 0, \delta \in (0, 1) \implies \Pr{X \geq a}
+      \leq \frac{\Ev{X}}{a} \text{ and } \Pr{X \geq \frac{\Ev{X}}{\delta}} \leq
+      \delta
+    \end{equation*}
+  \end{lemma}
+  \begin{lemma}[Jensen's Inequality]
+    \begin{equation*}
+      \text{R.V. } X, \text{ convex function } \phi \implies \phi(\Ev{X})
+      \leq \Ev{\phi(X)}
+    \end{equation*}
+  \end{lemma}
+  \begin{lemma}[Change of Measure Inequality]
+    \begin{equation*}
+      \text{R.V. } X, \text{ measurable function } \phi \implies \Ev[X \sim
+      Q]{\phi(X)} \leq \KL{Q}{P} + \ln \Ev[X \sim P]{\exp(\phi(X))}
+    \end{equation*}
+  \end{lemma}
+\end{frame}
+
+\begin{frame}{General PAC-Bayes Bound: Proof}
+  \small
+  \begin{equation*}
+    \begin{split}
+      &n\Delta\left(\Ev[h \sim \rho]{R_\CD^L(h)]}, \Ev[h \sim
+      \pi]{\hat{R}_S^L(h)}\right)
+      \\
+      \text{\small (Jensen)}\qquad \leq& \Ev[h \sim \rho]{n\Delta(R_\CD^L(h),
+      \hat{R}_S^L(h))}
+      \\
+      \text{\small (Measure Change)}\qquad \leq& \KL{\rho}{\pi} + \ln\left(\Ev[h
+      \sim \pi]{\exp(n \Delta(R_\CD^L(h), \hat{R}_S^L(h)))}\right)
+      \\
+      \text{\small (Markov)}\!\!\!\qquad \underset{1 - \delta}{\leq}&
+      \KL{\rho}{\pi} + \ln\left(\frac{1}{\delta} \Ev[S' \sim \CD^n]{\Ev[h \sim
+      \pi]{\exp(n \Delta(R_\CD^L(h), \hat{R}_{S'}^L(h)))}}\right)
+      \\
+      =& \KL{\rho}{\pi} + \ln \frac{1}{\delta} + \underbrace{\ln\left(\Ev[h \sim
+      \pi]{\Ev[S' \sim \CD^n]{\exp(n \Delta(R_\CD^L(h),
+      \hat{R}_{S'}^L(h)))}}\right)}_{\psi_\Delta^L(\pi, \CD, n)}
+    \end{split}
+  \end{equation*}
 \end{frame}
 
 \end{document}
