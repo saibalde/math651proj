@@ -4,14 +4,16 @@
 \usepackage{fullpage}
 \usepackage{bm}
 \usepackage{bbm}
+\usepackage{physics}
 \usepackage{graphicx}
 \usepackage{subcaption}
-\usepackage{color}
+\usepackage{xifthen}
 
 \DeclareMathOperator*{\Argmax}{argmax}
 \DeclareMathOperator*{\Argmin}{argmin}
-\DeclareMathOperator*{\Ev}{\mathbb{E}}
-\DeclareMathOperator*{\Var}{\mathbb{V}ar}
+\DeclareMathOperator*{\PrOp}{\mathbb{P}}
+\DeclareMathOperator*{\EvOp}{\mathbb{E}}
+\DeclareMathOperator*{\VarOp}{\mathbb{V}ar}
 
 \newcommand{\CD}{\mathcal{D}}
 \newcommand{\CH}{\mathcal{H}}
@@ -21,15 +23,19 @@
 \newcommand{\RR}{\mathbb{R}}
 \newcommand{\NN}{\mathbb{N}}
 
-\newcommand{\KL}[2]{\text{KL}(#1 \parallel #2)}
 \newcommand{\NormalDist}{\mathcal{N}}
 \newcommand{\BetaDist}{\text{Beta}}
 
 \renewcommand{\Vec}[1]{\bm{#1}}
 \newcommand{\Mat}[1]{\mathbf{#1}}
 
-\newcommand{\Abs}[1]{\lvert#1\rvert}
-\newcommand{\Norm}[1]{\lVert#1\rVert}
+\newcommand{\KL}[2]{\text{KL}(#1\parallel#2)}
+
+\newcommand{\Abs}[2][]{\left\lvert#2\right\rvert\ifthenelse{\isempty{#1}}{}{_{#1}}}
+\newcommand{\Norm}[2][]{\left\lVert#2\right\rVert\ifthenelse{\isempty{#1}}{}{_{#1}}}
+\renewcommand{\Pr}[2][]{\PrOp\ifthenelse{\isempty{#1}}{}{_{#1}}\left[#2\right]}
+\newcommand{\Ev}[2][]{\EvOp\ifthenelse{\isempty{#1}}{}{_{#1}}#2}
+\newcommand{\Var}[2][]{\VarOp\ifthenelse{\isempty{#1}}{}{_{#1}}\left[#2\right]}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{proposition}[theorem]{Proposition}

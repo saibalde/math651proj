@@ -29,7 +29,7 @@ we introduce a general form of the loss function $L : \CH \times \CX \times \CY
 and the optimal hypothesis would reduce the expected loss of an hypothesis
 \begin{equation}
   \label{eq:true-risk}
-  R_\CD^L(h) := \Ev_{(x, y) \sim \CD}[L(h, x, y)]
+  R_\CD^L(h) := \Ev[(x, y) \sim \CD]{L(h, x, y)}
 \end{equation}
 
 \subsection{Empirical Risk Minimization}
@@ -150,8 +150,8 @@ approximately correct (PAC) learning framework formalizes this concept:
   i.i.d.\ $\CD$ and $n \geq n_\CH(\epsilon, \delta)$, the algorithm returns a
   hypothesis $h^* \in \CH$ satisfying
   \begin{equation}
-    \Pr_{S \sim \CD^n}\left[R_\CD^L(h^*) \leq \min_{h \in \CH} R_\CD^L(h) +
-    \epsilon\right] \geq 1 - \delta
+    \Pr[S \sim \CD^n]{R_\CD^L(h^*) \leq \min_{h \in \CH} R_\CD^L(h) + \epsilon}
+    \geq 1 - \delta
   \end{equation}
   for all $0 < \epsilon, \delta < 1$.
 \end{definition}

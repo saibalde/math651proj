@@ -27,8 +27,8 @@ The update step is be carried out using Bayes rule:
   \propto p(\theta \mid M) p(S \mid \theta, M)
 \end{equation}
 Once we know this posterior, we can then easily estimate quantities of interest
-such as the posterior mean $\Ev[\theta \mid S, M]$ or variance $\Var[\theta
-\mid S, M]$.
+such as the posterior mean $\Ev{\theta \mid S, M}$ or variance $\Var{\theta \mid
+S, M}$.
 
 However, unless the problem is very simple, or the prior and likelihood has
 certain structures (e.g.\ conjugate priors), it is extremely difficult to
@@ -38,9 +38,9 @@ of such approximations, where we are only interested in the mode of the
 posterior distribution:
 \begin{equation}
   \label{eq:map-estimate}
-  \theta^\text{MAP} = \Argmax_\theta p(\theta \mid S, M) =
-  \Argmax_\theta \log p(\theta \mid S, M) = \Argmax_\theta \log p(\theta \mid
-  M) + \log p(S \mid \theta, M)
+  \theta^\text{MAP} = \Argmax_\theta p(\theta \mid S, M) = \Argmax_\theta \log
+  p(\theta \mid S, M) = \Argmax_\theta \log p(\theta \mid M) + \log p(S \mid
+  \theta, M)
 \end{equation}
 More advanced approximation methods involve Markov chain Monte-Carlo (MCMC)
 sampling or variational Bayes (VB) techniques.
@@ -62,8 +62,8 @@ $\theta \in \RR^d$ should be a sparse vector, then we would want a regularizer
 of the form
 \begin{equation}
   \log p(\theta \mid M) = - \lambda \sum_{i = 1}^d \Abs{\theta_i} +
-  \text{const.} \implies p(\theta \mid M) \propto \exp\left(-\lambda \sum_{i =
-  1}^d \Abs{\theta_i}\right)
+  \text{const.} \implies p(\theta \mid M) \propto \exp(-\lambda \sum_{i = 1}^d
+  \Abs{\theta_i})
 \end{equation}
 i.e.\ we should impose a Laplace prior on the parameters.
 

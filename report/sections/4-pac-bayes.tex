@@ -14,8 +14,8 @@ i.i.d.\ sampling from distribution $\CD$ over $\CX \times \CY$, a hypothesis
 class $\CH$ and a loss function $L : \CH \times \CX \times \CY \to [0, 1]$. The
 new aspect, as mentioned above, is a prior distribution $\pi$ on $\CH$, and the
 learning algorithm returns a posterior distribution $\hat{\rho}$. We now need to
-balance the (unknown) generalization error $\Ev_{h \sim \hat{\rho}}[R_\CD^L(h)]$
-given the (estimated) training error $\Ev_{h \sim \hat{\rho}}[\hat{R}_S^L(h)]$.
+balance the (unknown) generalization error $\Ev[h \sim \hat{\rho}]{R_\CD^L(h)}$
+given the (estimated) training error $\Ev[h \sim \hat{\rho}]{\hat{R}_S^L(h)}$.
 
 \subsection{A General Form of the Learning Guarantee}
 
@@ -23,7 +23,7 @@ The PAC-Bayesian bounds are constructed to be uniformly valid for all
 distributions on the hypothesis class. These bounds are typically in terms of
 the Kullback-Leibler divergence
 \begin{equation}
-  \KL{\rho}{\pi} = \Ev_{h \sim \rho}\left[\ln\frac{\rho(h)}{\pi(h)}\right]
+  \KL{\rho}{\pi} = \Ev[h \sim \rho]{\ln\frac{\rho(h)}{\pi(h)}}
 \end{equation}
 between the prior distribution $\pi$ (decided before seeing the sample $S$) and
 any other distribution $\rho$; they are therefore valid for any posterior
@@ -34,8 +34,8 @@ derived from three basic inequalities:
 \begin{lemma}[Markov's Inequality]
   Let $X$ be a positive random variable. Then
   \begin{equation}
-    \Pr(X \geq a) \leq \frac{\Ev[X]}{a} \iff \Pr\left(X \leq
-    \frac{\Ev[X]}{\delta}\right) \geq 1 - \delta
+    \Pr{X \geq a} \leq \frac{\Ev{X}}{a} \iff \Pr{X \leq \frac{\Ev{X}}{\delta}}
+    \geq 1 - \delta
   \end{equation}
   for all $a > 0$ and $\delta \in (0, 1)$.
 \end{lemma}
@@ -43,7 +43,7 @@ derived from three basic inequalities:
 \begin{lemma}[Jensen's Inequality]
   Let $X$ be a random variable and $\phi : \RR \to \RR$ a convex function. Then
   \begin{equation}
-    \Ev[\phi(X)] \geq \phi(\Ev[X])
+    \Ev{\phi(X)} \geq \phi(\Ev{X})
   \end{equation}
 \end{lemma}
 
@@ -51,8 +51,8 @@ derived from three basic inequalities:
   For any two distributions $\pi$ and $\rho$ on $\CH$ and any measurable
   function $\phi : \CH \to \RR$ we have
   \begin{equation}
-    \Ev_{h \sim \rho}[\phi(h)] \leq \KL{\rho}{\pi} + \ln\left(\Ev_{h \sim
-    \pi}[\exp\{\phi(h)\}]\right)
+    \Ev[h \sim \rho]{\phi(h)} \leq \KL{\rho}{\pi} + \ln\left(\Ev[h \sim
+    \pi]{\exp(\phi(h))}\right)
   \end{equation}
 \end{lemma}
 
@@ -60,15 +60,14 @@ derived from three basic inequalities:
   We have
   \begin{equation}
     \begin{split}
-      \Ev_{h \sim \rho}[\phi(h)]
-      &= \Ev_{h \sim \rho}\left[\ln\left(\frac{\rho(h)}{\pi(h)}
-      \frac{\pi(h)}{\rho(h)} \exp\{\phi(h)\}\right)\right] \\
-      &= \Ev_{h \sim \rho}\left[\ln\frac{\rho(h)}{\pi(h)}\right] + \Ev_{h \sim
-      \rho}\left[\ln\left(\frac{\pi(h)}{\rho(h)} \exp\{\phi(h)\}\right)\right]
-      \\
-      &\leq \KL{\rho}{\pi} + \ln\left(\Ev_{h \sim
-      \rho}\left[\frac{\pi(h)}{\rho(h)} \exp\{\phi(h)\}\right]\right) \\
-      &= \KL{\rho}{\pi} + \ln\left(\Ev_{h \sim \pi}[\exp\{\phi(h)\}]\right)
+      \Ev[h \sim \rho]{\phi(h)}
+      &= \Ev[h \sim \rho]{\ln\left(\frac{\rho(h)}{\pi(h)} \frac{\pi(h)}{\rho(h)}
+      \exp(\phi(h))\right)} \\
+      &= \Ev[h \sim \rho]{\ln\frac{\rho(h)}{\pi(h)}} + \Ev[h \sim
+      \rho]{\ln\left(\frac{\pi(h)}{\rho(h)} \exp(\phi(h))\right)} \\
+      &\leq \KL{\rho}{\pi} + \ln\left(\Ev[h \sim \rho]{\frac{\pi(h)}{\rho(h)}
+      \exp(\phi(h))}\right) \\
+      &= \KL{\rho}{\pi} + \ln\left(\Ev[h \sim \pi]{\exp(\phi(h))}\right)
     \end{split}
   \end{equation}
   where the third step from Jensen's inequality for concave functions.
@@ -84,14 +83,14 @@ derived from three basic inequalities:
   \delta$ over samples $S \sim \CD^n$
   \begin{equation}
     \label{eq:pac-bayes-bound}
-    \Delta\left(\Ev_{h \sim \rho}[R_\CD^L(h)], \Ev_{h \sim
-    \rho}[\hat{R}_S^L(h)]\right) \leq \frac{1}{n} \left[\KL{\rho}{\pi} +
-    \ln \frac{1}{\delta} + I_\Delta^L(\pi, \CD, n)\right]
+    \Delta\left(\Ev[h \sim \rho]{R_\CD^L(h)}, \Ev[h \sim
+    \rho]{\hat{R}_S^L(h)}\right) \leq \frac{1}{n} \left[\KL{\rho}{\pi} + \ln
+    \frac{1}{\delta} + I_\Delta^L(\pi, \CD, n)\right]
   \end{equation}
   with
   \begin{equation}
-    I_\Delta^L(\pi, \CD, n) := \ln\left(\Ev_{h \sim \pi}\left[\Ev_{S' \sim
-    \CD^n}[\exp\{n \Delta(R_\CD^L(h), R_{S'}^L(h))\}]\right]\right)
+    I_\Delta^L(\pi, \CD, n) := \ln\left(\Ev[h \sim \pi]{\Ev[S' \sim
+    \CD^n]{\exp(n \Delta(R_\CD^L(h), R_{S'}^L(h)))}}\right)
   \end{equation}
   for any distribution $\rho$ on $\CH$.
 \end{theorem}
@@ -101,25 +100,24 @@ derived from three basic inequalities:
   \begin{equation}
     \label{eq:pac-bayes-proof-eq-1}
     \begin{split}
-      n \Delta\left(\Ev_{h \sim \rho}[R_\CD^L(h)], \Ev_{h \sim
-      \rho}[\hat{R}_S^L(h)]\right)
-      &\leq \Ev_{h \sim \rho}\left[n \Delta(R_\CD^L(h), \hat{R}_S^L(h))\right]
-      \\
-      &\leq \KL{\rho}{\pi} + \ln\left(\Ev_{h \sim \pi}[\exp\{n
-      \Delta(R_\CD^L(h), \hat{R}_S^L(h))\}]\right)
+      n \Delta\left(\Ev[h \sim \rho]{R_\CD^L(h)}, \Ev[h \sim
+      \rho]{\hat{R}_S^L(h)}\right) &\leq \Ev[h \sim \rho]{n \Delta(R_\CD^L(h),
+      \hat{R}_S^L(h))} \\
+      &\leq \KL{\rho}{\pi} + \ln\left(\Ev[h \sim \pi]{\exp(n \Delta(R_\CD^L(h),
+      \hat{R}_S^L(h)))}\right)
     \end{split}
   \end{equation}
   where the step follows from Jensen's inequality and the second from the
-  measure change inequality. Now $\Ev_{h \sim \pi}[\exp\{n \Delta(R_\CD^L(h),
-  \hat{R}_S^L(h))\}]$ is a random function of $S$. Thus, from Markov's
+  measure change inequality. Now $\Ev[h \sim \pi]{\exp(n \Delta(R_\CD^L(h),
+  \hat{R}_S^L(h)))}$ is a random function of $S$. Thus, from Markov's
   inequality, with probability at least $1 - \delta$ over $S \sim \CD^n$ we have
   \begin{equation}
     \begin{split}
-      \Ev_{h \sim \pi}[\exp\{n \Delta(R_\CD^L(h), \hat{R}_S^L(h))\}]
-      &\leq \frac{1}{\delta} \Ev_{S' \sim \CD^n}\left[\Ev_{h \sim \pi}[\exp\{n
-      \Delta(R_\CD^L(h), \hat{R}_{S'}^L(h))\}]\right] \\
-      &= \frac{1}{\delta} \Ev_{h \sim \pi}\left[\Ev_{S' \sim \CD^n}[\exp\{n
-      \Delta(R_\CD^L(h), \hat{R}_{S'}^L(h))\}]\right]
+      \Ev[h \sim \pi]{\exp(n \Delta(R_\CD^L(h), \hat{R}_S^L(h)))}
+      &\leq \frac{1}{\delta} \Ev[S' \sim \CD^n]{\Ev[h \sim \pi]{\exp(n
+      \Delta(R_\CD^L(h), \hat{R}_{S'}^L(h)))}} \\
+      &= \frac{1}{\delta} \Ev[h \sim \pi]{\Ev[S' \sim \CD^n]{\exp(n
+      \Delta(R_\CD^L(h), \hat{R}_{S'}^L(h)))}}
     \end{split}
   \end{equation}
   Substituting this in \eqref{eq:pac-bayes-proof-eq-1} completes the proof.
@@ -140,9 +138,9 @@ We now present one particular form of the PAC-Bayes bound presented in
   \CD^n$
   \begin{equation}
     \label{eq:catoni-bound-unit}
-    \Ev_{h \sim \rho}[R_\CD^L(h)] \leq \frac{1}{1 - e^{-\beta}} \left[1 -
-    \exp\left( - \beta - \beta \Ev_{h \sim \rho}[\hat{R}_S^L(h)] - \frac{1}{n}
-    \left[\KL{\rho}{\pi} + \ln \frac{1}{\delta}\right]\right)\right]
+    \Ev[h \sim \rho]{R_\CD^L(h)} \leq \frac{1}{1 - e^{-\beta}} \left[1 -
+    \exp(-\beta - \beta \Ev[h \sim \rho]{\hat{R}_S^L(h)} - \frac{1}{n}
+    \left[\KL{\rho}{\pi} + \ln \frac{1}{\delta}\right])\right]
   \end{equation}
   for any distribution $\rho$ on $\CH$. \footnote{The bound cited in
   \cite{germain2016pac} and attributed to \cite{catoni2007pac} does not have the
@@ -157,26 +155,25 @@ We now present one particular form of the PAC-Bayes bound presented in
   \end{equation}
   on $[0, 1] \times [0, 1]$. It is easy to check that
   \begin{equation}
-    \Delta_\beta(p, q) \leq \beta \quad \text{for all} \quad 0 \leq p, q \leq 1  
+    \Delta_\beta(p, q) \leq \beta \quad \text{for all} \quad 0 \leq p, q \leq 1
   \end{equation}
-  We now compute an estimate for $I_\Delta^L(\pi, \CD, n) = \ln(\Ev_{h \sim
-  \pi}[\Ev_{S' \sim \CD^n}[\exp\{n \Delta(R_\CD^L(h), R_{S'}^L(h))\}]])$:
+  We now compute an estimate for $I_\Delta^L(\pi, \CD, n) = \ln(\Ev[h \sim
+  \pi]{\Ev[S' \sim \CD^n]{\exp(n \Delta(R_\CD^L(h), R_{S'}^L(h)))}})$:
   \begin{equation}
     \begin{split}
-      &\Ev_{S' \sim \CD^n}[\exp\{n \Delta(R_\CD^L(h), \hat{R}_{S'}^L(h))\}] \\
-      =& \Ev_{S' \sim \CD^n}[\exp\{- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)] -
-      \beta n \hat{R}_{S'}^L(h)\}] \\
-      =& \exp\{- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]\} \Ev_{S' \sim
-      \CD^n}[\exp\{-\beta n \hat{R}_{S'}^L(h))\}] \\
-      =& \exp\{- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]\} \Ev_{S' \sim
-      \CD^n}\left[\exp\left\{-\beta \sum_{i = 1}^n L(h, x_i',
-      y_i')\right\}\right] \\
-      =& \exp\{- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]\} \Ev_{S' \sim
-      \CD^n}\left[\prod_{i = 1}^n \exp\{-\beta L(h, x_i', y_i')\}\right] \\
-      =& \exp\{- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]\} \prod_{i = 1}^n
-      \Ev_{(x_i', y_i') \sim \CD}[\exp\{-\beta L(h, x_i', y_i')\}] \\
-      =& \left[\exp\{- \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]\} \Ev_{(x', y') \sim
-      \CD}[\exp\{-\beta L(h, x', y')\}]\right]^n
+      &\Ev[S' \sim \CD^n]{\exp(n \Delta(R_\CD^L(h), \hat{R}_{S'}^L(h)))} \\
+      =& \Ev[S' \sim \CD^n]{\exp(- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)] -
+      \beta n \hat{R}_{S'}^L(h))} \\
+      =& \exp(- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[S' \sim
+      \CD^n]{\exp(-\beta n \hat{R}_{S'}^L(h)))} \\
+      =& \exp(- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[S' \sim
+      \CD^n]{\exp(-\beta \sum_{i = 1}^n L(h, x_i', y_i'))} \\
+      =& \exp(- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[S' \sim
+      \CD^n]{\prod_{i = 1}^n \exp(-\beta L(h, x_i', y_i'))} \\
+      =& \exp(- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \prod_{i = 1}^n
+      \Ev[(x_i', y_i') \sim \CD]{\exp(-\beta L(h, x_i', y_i'))} \\
+      =& \left[\exp(- \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[(x', y') \sim
+      \CD]{\exp(-\beta L(h, x', y'))}\right]^n
     \end{split}
   \end{equation}
   where the last two steps follow from generating $S' = \{(x_1', y_1'), \ldots,
@@ -184,24 +181,24 @@ We now present one particular form of the PAC-Bayes bound presented in
   brackets:
   \begin{equation}
     \begin{split}
-      &\exp\{- \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]\} \Ev_{(x', y') \sim
-      \CD}[\exp\{-\beta L(h, x', y')\}] \\
-      =& \Ev_{(x', y') \sim \CD}[\exp\{- \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]\}
-      \exp\{-\beta L(h, x', y')\}] \\
-      =& \Ev_{(x', y') \sim \CD}\left[\exp\{- \ln(1 - (1 - e^{-\beta}) \Ev_{(x,
-      y) \sim \CD}[L(h, x, y)])\} \exp\{-\beta L(h, x', y')\}\right] \\
-      \leq& \Ev_{(x', y') \sim \CD}\left[\Ev_{(x, y) \sim \CD}[\exp\{- \ln(1 -
-      (1 - e^{-\beta}) L(h, x, y)) - \beta L(h, x', y')\}]\right] \\
-      =& \Ev_{(x', y') \sim \CD}\left[\Ev_{(x, y) \sim \CD}[\exp\{\Delta(L(h, x,
-      y)), L(h, x', y'))\}]\right]
+      &\exp(- \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[(x', y') \sim
+      \CD]{\exp(-\beta L(h, x', y'))} \\
+      =& \Ev[(x', y') \sim \CD]{\exp(- \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)])
+      \exp(-\beta L(h, x', y'))} \\
+      =& \Ev[(x', y') \sim \CD]{\exp(- \ln(1 - (1 - e^{-\beta}) \Ev[(x, y) \sim
+      \CD]{L(h, x, y)})) \exp(-\beta L(h, x', y'))} \\
+      \leq& \Ev[(x', y') \sim \CD]{\Ev[(x, y) \sim \CD]{\exp(- \ln(1 - (1 -
+      e^{-\beta}) L(h, x, y)) - \beta L(h, x', y'))}} \\
+      =& \Ev[(x', y') \sim \CD]{\Ev[(x, y) \sim \CD]{\exp(\Delta(L(h, x, y)),
+      L(h, x', y')))}}
     \end{split}
   \end{equation}
   where the inequality follows from Jensen's inequality and convexity of the
   exponential function. Now $L$ only maps to $[0, 1]$, and consequently $\Delta
   \leq \beta$ for all $(x, y), (x', y') \sim \CD$. It follows that
   \begin{equation}
-      \Ev_{(x', y') \sim \CD}\left[\Ev_{(x, y) \sim \CD}[\exp\{\Delta(L(h, x,
-      y)), L(h, x', y'))\}]\right] \leq e^\beta
+    \Ev[(x', y') \sim \CD]{\Ev[(x, y) \sim \CD]{\exp(\Delta(L(h, x, y)), L(h,
+    x', y')))}} \leq e^\beta
   \end{equation}
   Combining all these inequalities, we get
   \begin{equation}
@@ -218,14 +215,14 @@ L' + a$ where $L'$ maps to $[0, 1]$. We then use the bound in
 Theorem~\ref{thm:catoni} for $L'$ to obtain:
 \begin{equation}
   \label{eq:catoni-bound}
-  \Ev_{h \sim \rho}[R_\CD^L(h)] \leq a + \frac{b - a}{1 - e^{a - b}} \left[1 -
-  \exp\left(2 a - b - \Ev_{h \sim \rho}[\hat{R}_S^L(h)] - \frac{1}{n}
-  \left[\KL{\rho}{\pi} + \ln \frac{1}{\delta}\right]\right)\right]
+  \Ev[h \sim \rho]{R_\CD^L(h)} \leq a + \frac{b - a}{1 - e^{a - b}} \left[1 -
+  \exp(2 a - b - \Ev[h \sim \rho]{\hat{R}_S^L(h)} - \frac{1}{n}
+  \left[\KL{\rho}{\pi} + \ln \frac{1}{\delta}\right])\right]
 \end{equation}
-Optimizing this PAC-Bayes bound \eqref{eq:catoni-bound} over $\rho$ to find
-the optimal posterior distribution would lead to a simple learning algorithm.
-This optimization requires balancing the empirical expected loss $\Ev_{h \sim
-\rho}[\hat{R}_S^L(h)]$ and the KL divergence between distribution $\rho$ and
+Optimizing this PAC-Bayes bound \eqref{eq:catoni-bound} over $\rho$ to find the
+optimal posterior distribution would lead to a simple learning algorithm.  This
+optimization requires balancing the empirical expected loss $\Ev[h \sim
+\rho]{\hat{R}_S^L(h)}$ and the KL divergence between distribution $\rho$ and
 prior $\pi$. This immediately leads to the following corollary:
 
 \begin{corollary}
@@ -244,10 +241,9 @@ prior $\pi$. This immediately leads to the following corollary:
   We need to minimize
   \begin{equation}
     \begin{split}
-      n \Ev_{h \sim \rho}[\hat{R}_S^L(h)] + \KL{\rho}{\pi}
-      &= \Ev_{h \sim \rho}\left[n \hat{R}_S^L(h) +
-      \ln\frac{\rho(h)}{\pi(h)}\right] \\
-      &= \Ev_{h \sim \rho}\left[\ln\frac{\rho(h)}{\rho^*(h)}\right] - \ln Z_S \\
+      n \Ev[h \sim \rho]{\hat{R}_S^L(h)} + \KL{\rho}{\pi}
+      &= \Ev[h \sim \rho]{n \hat{R}_S^L(h) + \ln\frac{\rho(h)}{\pi(h)}} \\
+      &= \Ev[h \sim \rho]{\ln\frac{\rho(h)}{\rho^*(h)}} - \ln Z_S \\
       &= \KL{\rho}{\rho^*} - \ln Z_S
     \end{split}
   \end{equation}

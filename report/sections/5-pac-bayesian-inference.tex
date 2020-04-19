@@ -45,7 +45,7 @@ the negative log-likelihood loss is bounded:
 Additionally, we obtain
 \begin{equation}
   \begin{split}
-    n \Ev_{\theta \sim \rho^*} \hat{R}_S^{L_\text{nll}}(\theta) +
+    n \Ev[\theta \sim \rho^*]{\hat{R}_S^{L_\text{nll}}(\theta)} +
     \KL{\rho^*}{\pi}
     &= \int_\Theta \rho^*(\theta) \left[n \hat{R}_S^{L_\text{nll}}(\theta) + \ln
     \frac{\rho^*(\theta)}{\pi(\theta)}\right] d\theta \\
@@ -67,7 +67,7 @@ Theorem~\ref{thm:catoni} in as follows:
   $\delta \in (0, 1)$, if the negative log likelihood $L_\text{nll}(h_\theta, x,
   y) = -\ln p(x, y \mid \theta)$ lies in $[a, b]$, then we have
   \begin{equation}
-    \Ev_{\theta \sim \rho^*}[R_\CD^{L_\text{nll}}(\theta)] \leq a + \frac{b -
+    \Ev[\theta \sim \rho^*]{R_\CD^{L_\text{nll}}(\theta)} \leq a + \frac{b -
     a}{1 - e^{a - b}}\left[1 - e^{2 a - b} \sqrt[n]{p(S) \delta}\right]
   \end{equation}
   with probability at least $1 - \delta$ over i.i.d.\ sample $S \sim \CD^n$.
@@ -90,14 +90,14 @@ that does not make any assumptions on the boundedness of the loss function:
   following holds with probability at least $1 - \delta$ over $S \sim \CD^n$
   \begin{equation}
     \label{eq:alquier-bound}
-    \Ev_{h \sim \rho}[R_\CD^L(h)] \leq \Ev_{h \sim \rho}[\hat{R}_S^L(h)] +
+    \Ev[h \sim \rho]{R_\CD^L(h)} \leq \Ev[h \sim \rho]{\hat{R}_S^L(h)} +
     \frac{1}{\lambda}\left[\KL{\rho}{\pi} + \ln \frac{1}{\delta} +
     I_\lambda^L(\pi, \CD, n)\right]
   \end{equation}
   with
   \begin{equation}
-    I_\lambda^L(\pi, \CD, n) = \ln\left(\Ev_{h \sim \pi}\left[\Ev_{S' \sim
-    \CD^n}[\exp\{\lambda(R_\CD^L(h) - \hat{R}_S^L(h))\}]\right]\right)
+    I_\lambda^L(\pi, \CD, n) = \ln\left(\Ev[h \sim \pi]{\Ev[S' \sim
+    \CD^n]{\exp(\lambda(R_\CD^L(h) - \hat{R}_S^L(h)))}}\right)
   \end{equation}
   for all distributions $\rho$ on $\CH$.
 \end{theorem}
@@ -117,8 +117,8 @@ different loss functions using concentration inequalities, e.g.\:
   Let $X_1, \ldots, X_n$ be independent random variables with $X_i$ bounded in
   $[a_i, b_i]$. Then
   \begin{equation}
-    \Pr\left(| \bar{X} - \Ev[\bar{X}] | \geq t\right) \leq 2 \exp\left(- \frac{2
-    n^2 t^2}{\sum_{i = 1}^n (b_i - a_i)^2}\right)
+    \Pr{| \bar{X} - \Ev{\bar{X}} | \geq t} \leq 2 \exp(- \frac{2 n^2
+    t^2}{\sum_{i = 1}^n (b_i - a_i)^2})
   \end{equation}
   given the empirical mean
   \begin{equation}
