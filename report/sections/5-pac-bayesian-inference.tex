@@ -83,7 +83,8 @@ Theorem~\ref{thm:catoni} for unbounded loss functions.
 
 In \cite{alquier2016properties}, the authors present a general PAC-Bayes bound
 that does not make any assumptions on the boundedness of the loss function:
-\begin{theorem}
+
+\begin{theorem}[Alquier et al.\ PAC-Bayes Bound]
   Given a distribution $\CD$ over $\CX \times \CY$, a hypothesis set $\CH$, a
   loss function $L : \CH \times \CX \times \CY \to \RR$, a prior distribution
   $\pi$ over $\CH$ and real numbers $\delta \in (0, 1)$ and $\lambda > 0$, the
@@ -92,11 +93,11 @@ that does not make any assumptions on the boundedness of the loss function:
     \label{eq:alquier-bound}
     \Ev[h \sim \rho]{R_\CD^L(h)} \leq \Ev[h \sim \rho]{\hat{R}_S^L(h)} +
     \frac{1}{\lambda}\left[\KL{\rho}{\pi} + \ln \frac{1}{\delta} +
-    I_\lambda^L(\pi, \CD, n)\right]
+    \psi_\lambda^L(\pi, \CD, n)\right]
   \end{equation}
   with
   \begin{equation}
-    I_\lambda^L(\pi, \CD, n) = \ln\left(\Ev[h \sim \pi]{\Ev[S' \sim
+    \psi_\lambda^L(\pi, \CD, n) = \ln\left(\Ev[h \sim \pi]{\Ev[S' \sim
     \CD^n]{\exp(\lambda(R_\CD^L(h) - \hat{R}_S^L(h)))}}\right)
   \end{equation}
   for all distributions $\rho$ on $\CH$.
@@ -107,11 +108,11 @@ that does not make any assumptions on the boundedness of the loss function:
   \begin{equation}
     \Delta_\lambda(p, q) = \frac{\lambda}{n} (p - q)
   \end{equation}
-  as a convex function on $\RR^2$ instead of $[0, 1]^2$.
+  as a convex function with $I = \RR$.
 \end{proof}
 
-We now aim to bound the $I_\lambda^L(\pi, \CD, n)$ term corresponding to
-different loss functions using concentration inequalities, e.g.\:
+As an example, let us derive a bound for $\psi_\lambda^L(\pi, \CD, n)$ when the
+loss function is bounded in $[a, b]$. We will need Hoeffding's inequality:
 
 \begin{lemma}[Hoeffding's Inequality]
   Let $X_1, \ldots, X_n$ be independent random variables with $X_i$ bounded in
@@ -126,8 +127,5 @@ different loss functions using concentration inequalities, e.g.\:
   \end{equation}
 \end{lemma}
 
-\subsubsection{Classification with Bounded Loss}
-
-Let us consider a classification task with feature class $\CX$, label class $\CY
-= \{0, 1\}$ and hypothesis class $\CH$, with bounded loss function $L : \CH
-\times \CX \times \CY \to [a, b]$
+\begin{theorem}[Alquier et al.\ PAC-Bayes Bound for Bounded Loss]
+\end{theorem}

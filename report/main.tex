@@ -7,6 +7,8 @@
 \usepackage{physics}
 \usepackage{graphicx}
 \usepackage{subcaption}
+\usepackage{natbib}
+\usepackage[colorlinks]{hyperref}
 \usepackage{xifthen}
 
 \DeclareMathOperator*{\Argmax}{argmax}
@@ -47,19 +49,22 @@
 \newtheorem{problem}[theorem]{Problem}
 \newtheorem{example}[theorem]{Example}
 
-\title{Math 651: Course Project Report}
-\author{}
+\title{
+  Math 651: Course Project Report\\
+  Bridging PAC-Bayes Theory and Bayesian Inference
+}
+\author{
+  Saibal De
+}
 
 \begin{document}
 
 \maketitle
 
-\input{sections/2-pac-learning.tex}
-\input{sections/3-bayesian-inference.tex}
 \input{sections/4-pac-bayes.tex}
 \input{sections/5-pac-bayesian-inference.tex}
 
 \bibliography{references}
-\bibliographystyle{unsrt}
+\bibliographystyle{plainnat}
 
 \end{document}

@@ -1,35 +1,81 @@
-\section{PAC-Bayes Theory}
+\section{The PAC-Bayes Theory}
 
-It can be argued that the PAC framework models learning bias through selecting
-which hypothesis class to choose. This is fundamentally opposed to the Bayesian
-inference setting, where the bias is modeled as choosing an appropriate prior
-distribution. The PAC-Bayes theory bridges this distinction by imposing a prior
-distribution on the hypothesis class. This removes the issue of ``infinite VC
-dimension'' from learability of a hypothesis class.
+PAC-Bayes theory was formulated as PAC analysis for Bayesian estimates in
+certain problems \citep{mcallester1999some}. Since then, the
+framework has been improved by many \citep{seeger2002pac, langford2005tutorial,
+catoni2007pac, germain2015risk, germain2016pac} and it has been applied to many
+different learning scenarios \citep{langford2002pac, seldin2010pac,
+seldin2011pac}. In this section, we briefly review the fundamental elements of
+this theory, and introduce the basic bounds.
 
-\subsection{Learning Setup}
+\subsection{A Brief Review of Bayesian Inference}
 
-In the PAC-Bayes setup, we still have the training sample $S$ constructed from
-i.i.d.\ sampling from distribution $\CD$ over $\CX \times \CY$, a hypothesis
-class $\CH$ and a loss function $L : \CH \times \CX \times \CY \to [0, 1]$. The
-new aspect, as mentioned above, is a prior distribution $\pi$ on $\CH$, and the
-learning algorithm returns a posterior distribution $\hat{\rho}$. We now need to
-balance the (unknown) generalization error $\Ev[h \sim \hat{\rho}]{R_\CD^L(h)}$
-given the (estimated) training error $\Ev[h \sim \hat{\rho}]{\hat{R}_S^L(h)}$.
+Consider a learning setup where we want to learn about parameter $\theta$ of a
+model from observations $S$. The Bayesian inference then has the following
+general setup:
+\begin{itemize}
+  \item
+    We choose a probability distribution $p(\theta)$ on the parameters from
+    prior belief.
+  \item
+    We choose a likelihood $p(S \mid \theta)$ for our data based on the
+    measurement model.
+  \item
+    We update our beliefs by computing the posterior distribution $p(\theta \mid
+    S)$.
+\end{itemize}
+The update step is be carried out using Bayes rule:
+\begin{equation}
+  \label{eq:bayes-update}
+  p(\theta \mid S) = \frac{p(\theta) p(S \mid \theta)}{p(S)} \propto p(\theta)
+  p(S \mid \theta)
+\end{equation}
+Once we know this posterior, we can then easily estimate quantities of interest
+such as the posterior mean $\Ev{\theta \mid S}$ or variance $\Var{\theta \mid
+S}$.
 
-\subsection{A General Form of the Learning Guarantee}
+However, unless the problem is very simple, or the prior and likelihood has
+certain structures (e.g.\ conjugate priors), it is extremely difficult to
+compute the posterior analytically. We therefore rely on building approximations
+of the posterior. The maximum a posteriori (MAP) estimate is one of the simplest
+of such approximations, where we are only interested in the mode of the
+posterior distribution:
+\begin{equation}
+  \label{eq:map-estimate}
+  \theta^\text{MAP} = \Argmax_\theta p(\theta \mid S, M) = \Argmax_\theta \log
+  p(\theta \mid S, M) = \Argmax_\theta \log p(\theta \mid M) + \log p(S \mid
+  \theta, M)
+\end{equation}
+More advanced approximation methods involve Markov chain Monte-Carlo (MCMC)
+sampling or variational Bayes (VB) techniques.
+
+\subsection{A General Learning Guarantee}
+
+In PAC-Bayes, as we mentioned earlier, we impose a prior distribution $\pi(h)$
+on the hypothesis class $\CH$. The learning algorithm then returns a posterior
+distribution $\hat{\rho}$ on $\CH$ after seeing the data $S$. A PAC-type bound
+therefore aims to balance the (estimated) average training error
+\begin{equation}
+  \Ev[h \sim \hat{\rho}]{\hat{R}_S^L(h)} = \Ev[h \sim \hat{\rho}]{\frac{1}{n}
+  \sum_{i = 1}^n L(h, x_i, y_i)}
+\end{equation}
+against the (unknown) average generalization error
+\begin{equation}
+  \Ev[h \sim \hat{\rho}]{R_\CD^L(h)} = \Ev[h \sim \hat{\rho}]{\Ev[(x, y) \sim
+  \CY]{L(h, x, y)}}
+\end{equation}
 
 The PAC-Bayesian bounds are constructed to be uniformly valid for all
-distributions on the hypothesis class. These bounds are typically in terms of
-the Kullback-Leibler divergence
+distributions on the hypothesis class---they are therefore valid independent of
+the learning algorithm. These bounds are typically in terms of the
+Kullback-Leibler divergence
 \begin{equation}
-  \KL{\rho}{\pi} = \Ev[h \sim \rho]{\ln\frac{\rho(h)}{\pi(h)}}
+  \KL{\rho}{\pi} = \Ev[h \sim \rho]{\log\frac{\rho(h)}{\pi(h)}}
 \end{equation}
 between the prior distribution $\pi$ (decided before seeing the sample $S$) and
-any other distribution $\rho$; they are therefore valid for any posterior
-distribution $\hat{\rho}$ returned by the learning algorithm. Several such
-theorems exist in the literature. Here, we present a general form that can be
-derived from three basic inequalities:
+any other distribution $\rho$. Several such theorems exist in the literature.
+Here, we present a general form, which we will use in turn to derive two special
+forms. The proof of this general bound is based on three basic inequalities:
 
 \begin{lemma}[Markov's Inequality]
   Let $X$ be a positive random variable. Then
@@ -51,7 +97,7 @@ derived from three basic inequalities:
   For any two distributions $\pi$ and $\rho$ on $\CH$ and any measurable
   function $\phi : \CH \to \RR$ we have
   \begin{equation}
-    \Ev[h \sim \rho]{\phi(h)} \leq \KL{\rho}{\pi} + \ln\left(\Ev[h \sim
+    \Ev[h \sim \rho]{\phi(h)} \leq \KL{\rho}{\pi} + \log\left(\Ev[h \sim
     \pi]{\exp(\phi(h))}\right)
   \end{equation}
 \end{lemma}
@@ -61,35 +107,35 @@ derived from three basic inequalities:
   \begin{equation}
     \begin{split}
       \Ev[h \sim \rho]{\phi(h)}
-      &= \Ev[h \sim \rho]{\ln\left(\frac{\rho(h)}{\pi(h)} \frac{\pi(h)}{\rho(h)}
+      &= \Ev[h \sim \rho]{\log\left(\frac{\rho(h)}{\pi(h)} \frac{\pi(h)}{\rho(h)}
       \exp(\phi(h))\right)} \\
-      &= \Ev[h \sim \rho]{\ln\frac{\rho(h)}{\pi(h)}} + \Ev[h \sim
-      \rho]{\ln\left(\frac{\pi(h)}{\rho(h)} \exp(\phi(h))\right)} \\
-      &\leq \KL{\rho}{\pi} + \ln\left(\Ev[h \sim \rho]{\frac{\pi(h)}{\rho(h)}
+      &= \Ev[h \sim \rho]{\log\frac{\rho(h)}{\pi(h)}} + \Ev[h \sim
+      \rho]{\log\left(\frac{\pi(h)}{\rho(h)} \exp(\phi(h))\right)} \\
+      &\leq \KL{\rho}{\pi} + \log\left(\Ev[h \sim \rho]{\frac{\pi(h)}{\rho(h)}
       \exp(\phi(h))}\right) \\
-      &= \KL{\rho}{\pi} + \ln\left(\Ev[h \sim \pi]{\exp(\phi(h))}\right)
+      &= \KL{\rho}{\pi} + \log\left(\Ev[h \sim \pi]{\exp(\phi(h))}\right)
     \end{split}
   \end{equation}
-  where the third step from Jensen's inequality for concave functions.
+  where the third step from Jensen's inequality for concave function $\log$.
 \end{proof}
 
 \begin{theorem}[General Bound for PAC-Bayes Learning]
   \label{thm:pac-bayes}
   Given a hypothesis class $\CH$ of functions mapping from feature space $\CX$
   to label space $\CY$, for any distribution $\CD$ on $\CX \times \CY$, any loss
-  function $L : \CH \times \CX \times \CY \to [0, 1]$, any prior $\pi$ over
-  $\CH$, any convex function $\Delta : [0, 1] \times [0, 1] \to \RR$ and real
-  number $\delta \in (0, 1)$, the following holds with probability at least $1 -
-  \delta$ over samples $S \sim \CD^n$
+  function $L : \CH \times \CX \times \CY \to I$ where $I \subseteq \RR$ is an
+  interval, any prior $\pi$ over $\CH$, any convex function $\Delta : I \times I
+  \to \RR$ and real number $\delta \in (0, 1)$, the following holds with
+  probability at least $1 - \delta$ over samples $S \sim \CD^n$
   \begin{equation}
     \label{eq:pac-bayes-bound}
     \Delta\left(\Ev[h \sim \rho]{R_\CD^L(h)}, \Ev[h \sim
-    \rho]{\hat{R}_S^L(h)}\right) \leq \frac{1}{n} \left[\KL{\rho}{\pi} + \ln
-    \frac{1}{\delta} + I_\Delta^L(\pi, \CD, n)\right]
+    \rho]{\hat{R}_S^L(h)}\right) \leq \frac{1}{n} \left[\KL{\rho}{\pi} + \log
+    \frac{1}{\delta} + \Psi_\Delta^L(\pi, \CD, n)\right]
   \end{equation}
   with
   \begin{equation}
-    I_\Delta^L(\pi, \CD, n) := \ln\left(\Ev[h \sim \pi]{\Ev[S' \sim
+    \Psi_\Delta^L(\pi, \CD, n) := \log\left(\Ev[h \sim \pi]{\Ev[S' \sim
     \CD^n]{\exp(n \Delta(R_\CD^L(h), R_{S'}^L(h)))}}\right)
   \end{equation}
   for any distribution $\rho$ on $\CH$.
@@ -103,14 +149,12 @@ derived from three basic inequalities:
       n \Delta\left(\Ev[h \sim \rho]{R_\CD^L(h)}, \Ev[h \sim
       \rho]{\hat{R}_S^L(h)}\right) &\leq \Ev[h \sim \rho]{n \Delta(R_\CD^L(h),
       \hat{R}_S^L(h))} \\
-      &\leq \KL{\rho}{\pi} + \ln\left(\Ev[h \sim \pi]{\exp(n \Delta(R_\CD^L(h),
+      &\leq \KL{\rho}{\pi} + \log\left(\Ev[h \sim \pi]{\exp(n \Delta(R_\CD^L(h),
       \hat{R}_S^L(h)))}\right)
     \end{split}
   \end{equation}
   where the step follows from Jensen's inequality and the second from the
-  measure change inequality. Now $\Ev[h \sim \pi]{\exp(n \Delta(R_\CD^L(h),
-  \hat{R}_S^L(h)))}$ is a random function of $S$. Thus, from Markov's
-  inequality, with probability at least $1 - \delta$ over $S \sim \CD^n$ we have
+  measure change inequality. Now using Markov's inequality we get
   \begin{equation}
     \begin{split}
       \Ev[h \sim \pi]{\exp(n \Delta(R_\CD^L(h), \hat{R}_S^L(h)))}
@@ -120,10 +164,15 @@ derived from three basic inequalities:
       \Delta(R_\CD^L(h), \hat{R}_{S'}^L(h)))}}
     \end{split}
   \end{equation}
-  Substituting this in \eqref{eq:pac-bayes-proof-eq-1} completes the proof.
+  with probability at least $1 - \delta$ over $S \sim \CD^n$.  Substituting this
+  in \eqref{eq:pac-bayes-proof-eq-1} completes the proof.
 \end{proof}
 
-\subsection{Catoni's PAC-Bayes Bound}
+We should note that this proof actually does not use the fact that elements of
+the sample $S$ is being generated i.i.d.\ $\CD$. However to make $\Psi$
+computable this assumption will often be used.
+
+\subsection{Catoni's PAC-Bayes Bound and Optimal Gibbs Posterior}
 
 We now present one particular form of the PAC-Bayes bound presented in
 \cite{germain2016pac}, and attributed to \cite{catoni2007pac} therein:
@@ -140,39 +189,41 @@ We now present one particular form of the PAC-Bayes bound presented in
     \label{eq:catoni-bound-unit}
     \Ev[h \sim \rho]{R_\CD^L(h)} \leq \frac{1}{1 - e^{-\beta}} \left[1 -
     \exp(-\beta - \beta \Ev[h \sim \rho]{\hat{R}_S^L(h)} - \frac{1}{n}
-    \left[\KL{\rho}{\pi} + \ln \frac{1}{\delta}\right])\right]
+    \left[\KL{\rho}{\pi} + \log \frac{1}{\delta}\right])\right]
   \end{equation}
   for any distribution $\rho$ on $\CH$. \footnote{The bound cited in
   \cite{germain2016pac} and attributed to \cite{catoni2007pac} does not have the
-  $-\beta$ constant term inside the exponential. I haven't been able to
-  eliminate it in the proof, however.}
+  $-\beta$ constant term inside the exponential. However, I haven't been able to
+  eliminate it in the proof for general loss function $L$ with range $[0, 1]$.
+  On the other hand, the version without the extra term is certainly true for
+  the 0-1 loss function.}
 \end{theorem}
 
 \begin{proof}
   We define the convex function for $\beta > 0$
   \begin{equation}
-    \Delta_\beta(p, q) = -\ln[1 - (1 - e^{-\beta}) p] - \beta q
+    \Delta_\beta(p, q) = -\log[1 - (1 - e^{-\beta}) p] - \beta q
   \end{equation}
   on $[0, 1] \times [0, 1]$. It is easy to check that
   \begin{equation}
     \Delta_\beta(p, q) \leq \beta \quad \text{for all} \quad 0 \leq p, q \leq 1
   \end{equation}
-  We now compute an estimate for $I_\Delta^L(\pi, \CD, n) = \ln(\Ev[h \sim
+  We now compute an estimate for $\Psi_\Delta^L(\pi, \CD, n) = \log(\Ev[h \sim
   \pi]{\Ev[S' \sim \CD^n]{\exp(n \Delta(R_\CD^L(h), R_{S'}^L(h)))}})$:
   \begin{equation}
     \begin{split}
       &\Ev[S' \sim \CD^n]{\exp(n \Delta(R_\CD^L(h), \hat{R}_{S'}^L(h)))} \\
-      =& \Ev[S' \sim \CD^n]{\exp(- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)] -
+      =& \Ev[S' \sim \CD^n]{\exp(- n \log[1 - (1 - e^{-\beta}) R_\CD^L(h)] -
       \beta n \hat{R}_{S'}^L(h))} \\
-      =& \exp(- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[S' \sim
+      =& \exp(- n \log[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[S' \sim
       \CD^n]{\exp(-\beta n \hat{R}_{S'}^L(h)))} \\
-      =& \exp(- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[S' \sim
+      =& \exp(- n \log[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[S' \sim
       \CD^n]{\exp(-\beta \sum_{i = 1}^n L(h, x_i', y_i'))} \\
-      =& \exp(- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[S' \sim
+      =& \exp(- n \log[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[S' \sim
       \CD^n]{\prod_{i = 1}^n \exp(-\beta L(h, x_i', y_i'))} \\
-      =& \exp(- n \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \prod_{i = 1}^n
+      =& \exp(- n \log[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \prod_{i = 1}^n
       \Ev[(x_i', y_i') \sim \CD]{\exp(-\beta L(h, x_i', y_i'))} \\
-      =& \left[\exp(- \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[(x', y') \sim
+      =& \left[\exp(- \log[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[(x', y') \sim
       \CD]{\exp(-\beta L(h, x', y'))}\right]^n
     \end{split}
   \end{equation}
@@ -181,13 +232,13 @@ We now present one particular form of the PAC-Bayes bound presented in
   brackets:
   \begin{equation}
     \begin{split}
-      &\exp(- \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[(x', y') \sim
+      &\exp(- \log[1 - (1 - e^{-\beta}) R_\CD^L(h)]) \Ev[(x', y') \sim
       \CD]{\exp(-\beta L(h, x', y'))} \\
-      =& \Ev[(x', y') \sim \CD]{\exp(- \ln[1 - (1 - e^{-\beta}) R_\CD^L(h)])
+      =& \Ev[(x', y') \sim \CD]{\exp(- \log[1 - (1 - e^{-\beta}) R_\CD^L(h)])
       \exp(-\beta L(h, x', y'))} \\
-      =& \Ev[(x', y') \sim \CD]{\exp(- \ln(1 - (1 - e^{-\beta}) \Ev[(x, y) \sim
+      =& \Ev[(x', y') \sim \CD]{\exp(- \log(1 - (1 - e^{-\beta}) \Ev[(x, y) \sim
       \CD]{L(h, x, y)})) \exp(-\beta L(h, x', y'))} \\
-      \leq& \Ev[(x', y') \sim \CD]{\Ev[(x, y) \sim \CD]{\exp(- \ln(1 - (1 -
+      \leq& \Ev[(x', y') \sim \CD]{\Ev[(x, y) \sim \CD]{\exp(- \log(1 - (1 -
       e^{-\beta}) L(h, x, y)) - \beta L(h, x', y'))}} \\
       =& \Ev[(x', y') \sim \CD]{\Ev[(x, y) \sim \CD]{\exp(\Delta(L(h, x, y)),
       L(h, x', y')))}}
@@ -217,8 +268,9 @@ Theorem~\ref{thm:catoni} for $L'$ to obtain:
   \label{eq:catoni-bound}
   \Ev[h \sim \rho]{R_\CD^L(h)} \leq a + \frac{b - a}{1 - e^{a - b}} \left[1 -
   \exp(2 a - b - \Ev[h \sim \rho]{\hat{R}_S^L(h)} - \frac{1}{n}
-  \left[\KL{\rho}{\pi} + \ln \frac{1}{\delta}\right])\right]
+  \left[\KL{\rho}{\pi} + \log \frac{1}{\delta}\right])\right]
 \end{equation}
+
 Optimizing this PAC-Bayes bound \eqref{eq:catoni-bound} over $\rho$ to find the
 optimal posterior distribution would lead to a simple learning algorithm.  This
 optimization requires balancing the empirical expected loss $\Ev[h \sim
@@ -242,9 +294,9 @@ prior $\pi$. This immediately leads to the following corollary:
   \begin{equation}
     \begin{split}
       n \Ev[h \sim \rho]{\hat{R}_S^L(h)} + \KL{\rho}{\pi}
-      &= \Ev[h \sim \rho]{n \hat{R}_S^L(h) + \ln\frac{\rho(h)}{\pi(h)}} \\
-      &= \Ev[h \sim \rho]{\ln\frac{\rho(h)}{\rho^*(h)}} - \ln Z_S \\
-      &= \KL{\rho}{\rho^*} - \ln Z_S
+      &= \Ev[h \sim \rho]{n \hat{R}_S^L(h) + \log\frac{\rho(h)}{\pi(h)}} \\
+      &= \Ev[h \sim \rho]{\log\frac{\rho(h)}{\rho^*(h)}} - \log Z_S \\
+      &= \KL{\rho}{\rho^*} - \log Z_S
     \end{split}
   \end{equation}
   Clearly the solution is $\rho = \rho^*$.
