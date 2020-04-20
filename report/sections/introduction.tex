@@ -1,0 +1,167 @@
+\section{Introduction}
+
+In the classical approach to science and engineering problems, we develop models
+from first-principles, such as Newton's laws of mechanics and Maxwell's theory
+of electromagnetism. We then test the predictions of these models with
+experimental data. But in many cases, the first principles are unknown, and the
+data is readily available ---this has led to a paradigm shift, where we aim to
+discover the first principles from the data.
+
+In such an approach, there are two primary stages: we first construct an
+appropriate model using the data, then test the model by making predictions on
+unseen data. The first stage falls inside the regime of estimation---many
+frameworks have been developed over the last centuries for this purpose. One of
+the most popular of such frameworks is Bayesian inference, which provides a
+systematic rule for updating beliefs, e.g.\ model parameters, based on evidence,
+i.e.\ data (see \citet{bishop2006pattern} and
+\citet{ghahramani2015probabilistic} for more details). However, the second stage
+of our data-driven learning approach, commonly referred to as generalization,
+poses a challenge.
+
+\subsection{Quick Review of PAC Learning}
+
+Following the pioneering work of \citet{vapnik1971uniform}, which provides
+uniform bounds on generalization error, the probably approximately correct (PAC)
+learning framework has been developed to address this question (see
+\citet{shalev2014understanding} for an excellent survey of this topic). In the
+context of supervised learning, this problem is posed as follows: let $\CX$
+denote the feature space of data, and $\CY$ the label space. We have i.i.d.\
+samples $S = \{(x_1, y_1), \ldots, (x_n, y_n)\}$ generated from a data
+distribution $\CD$ defined over $\CX \times \CY$. Our goal is to learn a
+function $f : \CX \to \CY$ that would, first, fit the available training data
+(the estimation stage), and then will predict the label $y = f(x)$ given any
+feature $x \in \CX$ ``correctly''. In a typical scenario, we would choose a
+candidate $h$ from some hypothesis class $\CH$ consisting of functions from the
+feature space to the label space. We also have a loss function $L : \CH \times
+\CX \times \CY \to \RR$ that describes the closeness of of a predicted label
+$h(x)$ given a feature $x$ and hypothesis $h$, and its true label $y$. In
+theory, we would want to return a hypothesis $h^*$ that minimizes the true risk
+(a.k.a.\ generalization error)
+\begin{equation}
+  R_\CD^L(h) := \Ev[(x, y) \sim \CD]{L(h, x, y)}
+\end{equation}
+However, we cannot compute this quantity as $\CD$ is unknown. Hence we take the
+advantage of the i.i.d.\ sampling assumption and come up with the empirical risk
+(a.k.a.\ training error)
+\begin{equation}
+  \hat{R}_S^L(h) := \frac{1}{n} \sum_{i = 1}^n L(h, x_i, y_i)
+\end{equation}
+From the law of large numbers, we know that as the sample size $n$ approaches
+infinity, the empirical risk approaches the true risk by the law of large
+numbers. Therefore, we intuitively expect the hypothesis constructed using the
+training error to be the ``more correct'' as the number of samples increase. The
+PAC theory provides theoretical guarantees for this in terms of VC dimension (a
+measure of complexity) of hypothesis classes:
+
+\begin{definition}[Shattering for Indicator Functions]
+  A set of indicator functions $\CH$, with $h : \CX \to \{0, 1\}$ for each $h
+  \in \CH$, is said to shatter a set of points $x_1, \ldots, x_n \in \CX$ if any
+  two such points can be distinguished by at least one element $h \in \CH$, or
+  equivalently, if the set $\{(h(x_1), \ldots, h(x_n)) : h \in \CH\}$ has
+  cardinality $2^n$.
+\end{definition}
+
+\begin{definition}[VC Dimension for Indicator Function Classes]
+  The VC dimension of a set $\CH$ of indicator functions is the maximum number
+  of arbitrary points it can chatter.
+\end{definition}
+
+\begin{definition}[VC Dimension for Real Valued Function Classes]
+  Let $\CH$ be a class of functions of the form $h : \CX \to \CY \subseteq \RR$.
+  For any $y \in \CY$, define the indicator function class $\CH_y = \{h_y : h
+  \in \CH\}$ where
+  \begin{equation}
+    h_y(x) = \mathbbm{1}_{h(x) \geq y}
+  \end{equation}
+  Then the VC dimension of $\CH$ is defined as $\sup_{y \in \CY}
+  \text{VCdim}(\CH_y)$.
+\end{definition}
+
+We now state the following results from \citet[Sections 4.3.1 and
+4.3.2]{cherkassky2007learning}:
+
+\begin{theorem}[Generlization Error Bounds]
+  Suppose $\CH$ is a hypothesis class with VC dimension $d$ and let $n$ be the
+  number of i.i.d.\ training samples. Then for any bounded non-negative loss
+  function $L$ (e.g.\ the 0-1 loss for classification) we have
+  \begin{equation}
+    \label{eq:generalization-classification}
+    R_\CD^L(h) \leq \hat{R}_S^L(h) + \frac{\epsilon}{2} \qty[1 + \sqrt{1 +
+    \frac{4}{\epsilon} \hat{R}_S^L(h)}] \quad \text{with probability at least }
+    1 - \delta \text{ over } S \sim \CD^n
+  \end{equation}
+  and for any non-negative loss function $L$ (e.g.\ the squared loss for
+  regression) we have
+  \begin{equation}
+    \label{eq:generalization-regression}
+    R_\CD^L(h) \leq \frac{\hat{R}_S^L(h)}{(1 - c \sqrt{\epsilon})_+} \quad
+    \text{with probability at least } 1 - \delta \text{ over } S \sim \CD^n
+  \end{equation}
+  where $x_+ = \max\{x, 0\}$ and
+  \begin{equation}
+    \epsilon = a_1 \frac{d [\log (a_2 n / d) + 1] - \log (\delta / 4)}{n}
+  \end{equation}
+  and $0 < a_1 \leq 4$, $0 < a_2 \leq 2$. These bounds hold simultaneously for
+  all $h \in \CH$.
+\end{theorem}
+
+\subsection{Limitations of PAC Learning}
+
+We note that these bounds are useless when the VC dimension $d$ is infinite.
+This suggests a close connection between learnability and VC dimension of a
+hypothesis class \citep[Sections 3.2, 6.4]{shalev2014understanding}:
+
+\begin{definition}[PAC Learnability]
+  A hypothesis class $\CH$, consisting of functions of the form $h : \CX \to
+  \CY$, is said to be PAC learnable with respect to a loss function $L : \CH
+  \times \CX \times \CY \to \RR$ if there exists a function $n_\CH : (0, 1)
+  \times (0, 1) \to \NN$ and a learning algorithm such that for every
+  distribution $\CD$ on $\CX \times \CY$, when running the algorithm on training
+  sample $S = \{(x_1, y_1), \ldots, (x_n, y_n)\}$, with $(x_i, y_i)$ generated
+  i.i.d.\ $\CD$ and $n \geq n_\CH(\epsilon, \delta)$, the algorithm returns a
+  hypothesis $h^* \in \CH$ satisfying
+  \begin{equation}
+    \Pr[S \sim \CD^n]{R_\CD^L(h^*) \leq \min_{h \in \CH} R_\CD^L(h) + \epsilon}
+    \geq 1 - \delta
+  \end{equation}
+  for all $0 < \epsilon, \delta < 1$.
+\end{definition}
+
+\begin{theorem}[Fundamental Theorem of Statistical Learning]
+  A hypothesis class $\CH$ is PAC learnable w.r.t.\ 0-1 loss if and only if its
+  VC dimension is finite.
+\end{theorem}
+
+One might expect that function classes with infinite VC dimensions to be
+inherently complicated. But surprisingly, even an one-parametric family of
+functions can have infinite VC dimension \citep[Section
+6.3]{shalev2014understanding}:
+
+\begin{example}
+  Let us define $h_\theta : \RR \to \{0, 1\}$ as
+  \begin{equation}
+    h_\theta(x) = \lceil 0.5 \sin \theta x \rceil, \quad \theta \in \RR
+  \end{equation}
+  Then $\CH = \{h_\theta : \theta \in \RR\}$ has infinite VC dimension.
+\end{example}
+
+Additionally, even in the finite VC dimension case, and in particular for the
+regression task, the bound \eqref{eq:generalization-regression} is often loose.
+
+\subsection{PAC-Bayes Theory}
+
+The PAC-Bayes theory overcomes these limitations by blending in the frequentist
+approach of PAC learning with a Bayesian setting. We can argue that selecting a
+hypothesis class can be though of as imposing bias on the learning model. In
+PAC-Bayes, we generalize this concept by imposing a full-fledged prior
+distribution on the hypothesis class. The complexity of the hypothesis class is
+then measured entirely in terms of the prior, thus the issue of ``infinite VC
+dimension'' is automatically resolved.
+
+\subsection{Outline}
+
+In this report, we aim to provide a brief review of PAC-Bayes theory and draw
+connections between it and Bayesian inference. It is structured as follows:
+Section 2 introduces the basic PAC-Bayes bounds, Section 3 draws the connection
+between PAC-Bayes and Bayesian inference, and finally Section 4 applies the
+PAC-Bayes theory for Bayesian linear regression.
