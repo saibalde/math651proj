@@ -112,20 +112,120 @@ that does not make any assumptions on the boundedness of the loss function:
 \end{proof}
 
 As an example, let us derive a bound for $\psi_\lambda^L(\pi, \CD, n)$ when the
-loss function is bounded in $[a, b]$. We will need Hoeffding's inequality:
+loss function is bounded in $[a, b]$. We will need Hoeffding's lemma:
 
-\begin{lemma}[Hoeffding's Inequality]
-  Let $X_1, \ldots, X_n$ be independent random variables with $X_i$ bounded in
-  $[a_i, b_i]$. Then
+\begin{lemma}[Hoeffding's Lemma]
+  Let $X$ be a random variable with $c \leq X \leq d$ a.s.\ and $\Ev{X} = \mu$.
+  Then
   \begin{equation}
-    \Pr{| \bar{X} - \Ev{\bar{X}} | \geq t} \leq 2 \exp(- \frac{2 n^2
-    t^2}{\sum_{i = 1}^n (b_i - a_i)^2})
-  \end{equation}
-  given the empirical mean
-  \begin{equation}
-    \bar{X} = \frac{1}{n}(X_1 + \cdots + X_n)
+    \Ev{e^{\lambda X}} \leq \exp(\lambda \eta + \frac{\lambda^2 (d - c)^2}{8})
   \end{equation}
 \end{lemma}
 
-\begin{theorem}[Alquier et al.\ PAC-Bayes Bound for Bounded Loss]
-\end{theorem}
+\begin{corollary}[Alquier et al.\ PAC-Bayes Bound for Bounded Loss]
+  Given a distribution $\CD$ over $\CX \times \CY$, a hypothesis set $\CH$, a
+  loss function $L : \CH \times \CX \times \CY \to [a, b]$, a prior distribution
+  $\pi$ over $\CH$ and real numbers $\delta \in (0, 1)$ and $\lambda > 0$, the
+  following holds with probability at least $1 - \delta$ over $S \sim \CD^n$
+  \begin{equation}
+    \label{eq:alquier-bound-bounded-loss}
+    \Ev[h \sim \rho]{R_\CD^L(h)} \leq \Ev[h \sim \rho]{\hat{R}_S^L(h)} +
+    \frac{1}{n}\left[\KL{\rho}{\pi} + \ln \frac{1}{\delta}\right] + \frac{(b -
+    a)^2}{2}
+  \end{equation}
+\end{corollary}
+
+\begin{proof}
+  We compute
+  \begin{equation}
+    \begin{split}
+      \Ev[S' \sim \CD^n]{\exp(\lambda (R_D^L(h) - \hat{R}_S^L(h)))}
+      &= \Ev[S' \sim \CD^n]{\exp(-\frac{\lambda}{n} \sum_{i = 1}^n [L(h, x_i',
+      y_i') - R_\CD^L(h)])} \\
+      &= \left[\Ev[(x', y') \sim \CD]{\exp(-\frac{\lambda}{n} [L(h, x', y') -
+      R_\CD^L(h)])}\right]^n
+    \end{split}
+  \end{equation}
+  where the second step follow from i.i.d.\ sampling of $S$ from $\CD^n$. Now,
+  $L(h, x', y') - R_\CD^L(h)$ is a random variable of $(x', y') \sim \CD$ with
+  mean $0$ and range $[a - b, b - a]$. Hence from Hoeffding's lemma, we have
+  \begin{equation}
+    \Ev[(x', y') \sim \CD]{\exp(-\frac{\lambda}{n} [L(h, x', y') - R_\CD^L(h)])}
+    \leq \exp(\frac{\lambda^2}{n^2} \frac{[2 (b - a)]^2}{8})
+  \end{equation}
+  and the right hand side is at least $1$. It follows that
+  \begin{equation}
+    \Ev[S' \sim \CD^n]{\exp(\lambda (R_D^L(h) - \hat{R}_S^L(h)))} \leq
+    \exp(\frac{\lambda^2 (b - a)^2}{2n}) \implies \psi_\lambda^L(\pi, \CD, n)
+    \leq \frac{\lambda^2 (b - a)^2}{2 n}
+  \end{equation}
+  Substituting $\lambda = n$, we get our desired result.
+\end{proof}
+
+We note that with the choice of $\lambda = \sqrt{n}$, we get the following
+alternate to \eqref{eq:alquier-bound-bounded-loss}
+\begin{equation}
+  \Ev[h \sim \rho]{R_\CD^L(h)} \leq \Ev[h \sim \rho]{\hat{R}_S^L(h)} +
+  \frac{1}{\sqrt{n}}\left[\KL{\rho}{\pi} + \ln \frac{1}{\delta} + \frac{(b -
+  a)^2}{2}\right]
+\end{equation}
+This is certainly a better bound from the generalization perspective---as $n \to
+\infty$, the bound converges to the training loss given fixed $\rho$. But this
+loses the Bayes rule interpretation of the optimal posterior.
+
+We now introduce two classes of loss functions for which we can easily bound the
+$\psi_\lambda^L$ term:
+
+\begin{definition}[Sub-Gaussian Loss]
+  A loss function $L$ is said to be sub-Gaussian with variance factor $s^2$
+  w.r.t.\ prior $\pi$ and data distribution $\CD$ if
+  \begin{equation}
+    \ln \Ev[h \sim \pi, (x, y) \sim \CD]{\exp(\lambda [R_\CD^L(h) - L(h, x,
+    y)])} \leq \frac{\lambda^2 s^2}{2}
+  \end{equation}
+  for all $\lambda \in \RR$.
+\end{definition}
+
+\begin{definition}[Sub-Gamma Loss]
+  A loss function $L$ is said to be sub-gamma with variance factor $s^2$ and
+  scale factor $c > 0$ w.r.t.\ prior $\pi$ and data distribution $\CD$ if
+  \begin{equation}
+    \ln \Ev[h \sim \pi, (x, y) \sim \CD]{\exp(\lambda [R_\CD^L(h) - L(h, x,
+    y)])} \leq \frac{s^2}{c^2} [-\ln(1 - \lambda c) - \lambda c] \leq
+    \frac{\lambda^2 c^2}{2 (1 - c \lambda)}
+  \end{equation}
+  for all $\lambda \in (0, 1 / c)$.
+\end{definition}
+
+These definitions are tailor-made for the following two immediate corollaries:
+
+\begin{corollary}[Alquier et al.\ PAC-Bayes Bound for Sub-Gaussian Loss]
+  Given a distribution $\CD$ over $\CX \times \CY$, a hypothesis set $\CH$, a
+  prior distribution $\pi$ over $\CH$, a loss function $L : \CH \times \CX \times
+  \CY \to \RR$ sub-Gaussian w.r.t.\ $\pi$ and $\CD$, and real numbers $\delta \in
+  (0, 1)$ and $\lambda > 0$, the following holds with probability at least $1 -
+  \delta$ over $S \sim \CD^n$
+  \begin{equation}
+    \label{eq:alquier-bound-sub-gaussian-loss}
+    \Ev[h \sim \rho]{R_\CD^L(h)} \leq \Ev[h \sim \rho]{\hat{R}_S^L(h)} +
+    \frac{1}{n}\left[\KL{\rho}{\pi} + \ln \frac{1}{\delta}\right] +
+    \frac{s^2}{2}
+  \end{equation}
+\end{corollary}
+
+\begin{corollary}[Alquier et al.\ PAC-Bayes Bound for Sub-Gamma Loss]
+  Given a distribution $\CD$ over $\CX \times \CY$, a hypothesis set $\CH$, a
+  prior distribution $\pi$ over $\CH$, a loss function $L : \CH \times \CX \times
+  \CY \to \RR$ sub-gamma w.r.t.\ $\pi$ and $\CD$, and real numbers $\delta \in
+  (0, 1)$ and $\lambda > 0$, the following holds with probability at least $1 -
+  \delta$ over $S \sim \CD^n$
+  \begin{equation}
+    \label{eq:alquier-bound-sub-gamma-loss}
+    \Ev[h \sim \rho]{R_\CD^L(h)} \leq \Ev[h \sim \rho]{\hat{R}_S^L(h)} +
+    \frac{1}{n}\left[\KL{\rho}{\pi} + \ln \frac{1}{\delta}\right] +
+    \frac{1}{2 (1 - c)} s^2
+  \end{equation}
+\end{corollary}
+
+Both results can be easily proven using the definition of the loss class and
+Hoeffding's lemma.
