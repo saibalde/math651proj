@@ -85,6 +85,7 @@ In \cite{alquier2016properties}, the authors present a general PAC-Bayes bound
 that does not make any assumptions on the boundedness of the loss function:
 
 \begin{theorem}[Alquier et al.\ PAC-Bayes Bound]
+  \label{thm:alquier}
   Given a distribution $\CD$ over $\CX \times \CY$, a hypothesis set $\CH$, a
   loss function $L : \CH \times \CX \times \CY \to \RR$, a prior distribution
   $\pi$ over $\CH$ and real numbers $\delta \in (0, 1)$ and $\lambda > 0$, the
@@ -180,24 +181,23 @@ $\psi_\lambda^L$ term:
   A loss function $L$ is said to be sub-Gaussian with variance factor $s^2$
   w.r.t.\ prior $\pi$ and data distribution $\CD$ if
   \begin{equation}
-    \ln \Ev[h \sim \pi, (x, y) \sim \CD]{\exp(\lambda [R_\CD^L(h) - L(h, x,
-    y)])} \leq \frac{\lambda^2 s^2}{2}
+    \ln \Ev[h \sim \pi, (x, y) \sim \CD]{\exp(t [R_\CD^L(h) - L(h, x, y)])} \leq
+    \frac{t^2 s^2}{2}
   \end{equation}
-  for all $\lambda \in \RR$.
+  for all $t \in \RR$.
 \end{definition}
 
 \begin{definition}[Sub-Gamma Loss]
   A loss function $L$ is said to be sub-gamma with variance factor $s^2$ and
   scale factor $c > 0$ w.r.t.\ prior $\pi$ and data distribution $\CD$ if
   \begin{equation}
-    \ln \Ev[h \sim \pi, (x, y) \sim \CD]{\exp(\lambda [R_\CD^L(h) - L(h, x,
-    y)])} \leq \frac{s^2}{c^2} [-\ln(1 - \lambda c) - \lambda c] \leq
-    \frac{\lambda^2 c^2}{2 (1 - c \lambda)}
+    \ln \Ev[h \sim \pi, (x, y) \sim \CD]{\exp(t [R_\CD^L(h) - L(h, x, y)])} \leq
+    \frac{s^2}{c^2} [-\ln(1 - t c) - t c] \leq \frac{t^2 s^2}{2 (1 - t c)}
   \end{equation}
-  for all $\lambda \in (0, 1 / c)$.
+  for all $t \in (0, 1 / c)$.
 \end{definition}
 
-These definitions are tailor-made for the following two immediate corollaries:
+These definitions are tailor-made for PAC-Bayes bounds:
 
 \begin{corollary}[Alquier et al.\ PAC-Bayes Bound for Sub-Gaussian Loss]
   Given a distribution $\CD$ over $\CX \times \CY$, a hypothesis set $\CH$, a
@@ -213,7 +213,32 @@ These definitions are tailor-made for the following two immediate corollaries:
   \end{equation}
 \end{corollary}
 
+\begin{proof}
+  We have
+  \begin{equation}
+    \begin{split}
+      \psi_\lambda^L(\pi, \CD, n)
+      &=\ln \Ev[h \sim \pi, S' \sim \CD^n]{\exp(\lambda (R_\CD^L(h) -
+      \hat{R}_{S'}^L(h)))} \\
+      &= \ln \Ev[h \sim \pi, S' \sim \CD^n]{\exp(\frac{\lambda}{n} \sum_{i =
+      1}^n (R_\CD^L(h) - L(h, x_i', y_i')))} \\
+      &= \ln \Ev[h \sim \pi, S' \sim \CD^n]{\prod_{i = 1}^n
+      \exp(\frac{\lambda}{n} (R_\CD^L(h) - L(h, x_i', y_i')))} \\
+      &= \ln \prod_{i = 1}^n \Ev[h \sim \pi, (x_i', y_i') \sim
+      \CD]{\exp(\frac{\lambda}{n} (R_\CD^L(h) - L(h, x_i', y_i')))} \\
+      &= n \ln \Ev[h \sim \pi, (x', y') \sim \CD]{\exp(\frac{\lambda}{n}
+      (R_\CD^L(h) - L(h, x', y')))} \\
+      &\leq n \qty(\frac{\lambda}{n}) \frac{s^2}{2} \\
+      &= \frac{\lambda^2 s^2}{2 n}
+    \end{split}
+  \end{equation}
+  where the inequality follows from the definition of sub-Gaussian loss
+  function. Now, with the choice of $\lambda = n$ in Theorem~\ref{thm:alquier},
+  we recover the bound.
+\end{proof}
+
 \begin{corollary}[Alquier et al.\ PAC-Bayes Bound for Sub-Gamma Loss]
+  \label{cor:alquier-sub-gamma}
   Given a distribution $\CD$ over $\CX \times \CY$, a hypothesis set $\CH$, a
   prior distribution $\pi$ over $\CH$, a loss function $L : \CH \times \CX \times
   \CY \to \RR$ sub-gamma w.r.t.\ $\pi$ and $\CD$, and real numbers $\delta \in
@@ -227,5 +252,6 @@ These definitions are tailor-made for the following two immediate corollaries:
   \end{equation}
 \end{corollary}
 
-Both results can be easily proven using the definition of the loss class and
-Hoeffding's lemma.
+\begin{proof}
+  Exactly the same as the previous corollary.
+\end{proof}
