@@ -1,0 +1,22 @@
+\section{Conclusion}
+
+\subsection{Our Contribution}
+
+In this report, we reviewed some basic results of PAC-Bayes theory, and how it
+generalizes the PAC learning by removing the finite VC dimension assumption. We
+then analyzed how generalization error of Bayesian linear regression behaves as
+the number of data points is increased with the PAC-Bayesian theory. In this
+context, we provide a slight generalization of \cite{germain2016pac} in that we
+analyze Bayesian regression with nonlinear basis functions.
+
+\subsection{Future Work}
+
+In this report, we did not actually address how to choose the prior distribution
+$\pi$ on the hypothesis set. We could have, for instance, used some of the data
+points to construct an useful prior, and the rest for training. Additionally, as
+we noted in the report, it is possible to drive down the difference between the
+empirical error and generalization error to zero as the number of data points
+increase, provided we choose a posterior different from the one obtained using
+Bayesian inference. This has recently led to generalized Bayesian inference
+techniques \citep{guedj2019primer}. We also want to explore this field in more
+detail.
